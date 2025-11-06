@@ -12,18 +12,18 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     
     <style>
-        /* IBM Carbon g90 Theme */
+        /* IBM Carbon g10 Theme (Light Mode) */
         :root {
-            --bg-primary: #161616;
-            --bg-card: #262626;
-            --border-color: #393939;
-            --text-primary: #f4f4f4;
-            --text-secondary: #c6c6c6;
+            --bg-primary: #ffffff;
+            --bg-card: #fff;
+            --border-color: #e0e0e0;
+            --text-primary: #161616;
+            --text-secondary: #525252;
             --text-tertiary: #8d8d8d;
             --ibm-blue-60: #0F62FE;
             --ibm-blue-50: #4589FF;
             --ibm-blue-30: #A6C8FF;
-            --bg-surface: #1f1f1f;
+            --bg-surface: #f9f9f9;
         }
         
         body {
@@ -105,7 +105,7 @@
         }
         
         .navbar {
-            background-color: rgba(22, 22, 22, 0.9);
+            background-color: rgba(255, 255, 255, 0.95);
             border-bottom: 1px solid var(--border-color);
             backdrop-filter: blur(10px);
             position: sticky;
@@ -128,17 +128,180 @@
         }
         
         .verified-badge {
-            background-color: #07392f;
-            border: 1px solid var(--border-color);
+            background-color: #d0f0e4;
+            border: 1px solid #24a46d;
             border-radius: 0.75rem;
             padding: 0.75rem;
         }
         
         .info-section {
-            background-color: #1f2a44;
+            background-color: #e5edff;
             border: 1px solid var(--border-color);
             border-radius: 0.75rem;
             padding: 0.75rem;
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 65px;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem;
+            z-index: 9;
+        }
+        
+        .mobile-menu.active {
+            display: block;
+        }
+        
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+            padding: 8px;
+        }
+        
+        .hamburger span {
+            width: 24px;
+            height: 2px;
+            background-color: var(--text-primary);
+            transition: all 0.3s;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .navbar .flex.items-center.gap-2 {
+                display: none;
+            }
+            
+            .hamburger {
+                display: flex;
+            }
+            
+            .mobile-menu .nav-tab {
+                display: block;
+                width: 100%;
+                text-align: left;
+                margin-bottom: 0.5rem;
+            }
+            
+            .flex.items-center.justify-between.gap-4 {
+                flex-direction: column;
+                align-items: flex-start !important;
+            }
+            
+            .flex.items-center.gap-2 {
+                flex-wrap: wrap;
+            }
+            
+            .mode-btn {
+                flex: 1;
+                min-width: 100px;
+                font-size: 0.75rem;
+                padding: 0.5rem 0.5rem;
+            }
+            
+            .grid.md\\:grid-cols-3 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .grid.md\\:grid-cols-2 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .md\\:col-span-2 {
+                grid-column: span 1 !important;
+            }
+            
+            .card {
+                padding: 1rem !important;
+            }
+            
+            /* Fix identity tab cards */
+            #identity-tab .card.p-4.flex.items-center.justify-between {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 0.75rem;
+            }
+            
+            #identity-tab .card.p-4.flex.items-center.justify-between button {
+                align-self: flex-end;
+            }
+            
+            #identity-tab .flex.items-center.justify-between {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            #identity-tab .font-mono {
+                font-size: 0.7rem;
+                word-break: break-all;
+            }
+            
+            #identity-tab pre {
+                font-size: 0.65rem;
+                max-height: 200px;
+            }
+            
+            #identity-tab .flex.gap-2 {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            #identity-tab .flex.gap-2 button {
+                width: 100%;
+            }
+            
+            /* Contact tab cards */
+            #contact-tab .grid.md\\:grid-cols-3 .card {
+                padding: 0.75rem !important;
+            }
+            
+            #contact-tab .text-lg {
+                font-size: 1rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .navbar .max-w-5xl {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .pill {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.5rem;
+            }
+            
+            .btn-primary, .btn-secondary {
+                font-size: 0.75rem;
+                padding: 0.5rem 0.75rem;
+            }
+            
+            h2 {
+                font-size: 1.25rem;
+            }
+            
+            .text-2xl {
+                font-size: 1.25rem;
+            }
+            
+            #identity-tab .text-lg {
+                font-size: 1rem;
+            }
+            
+            #identity-tab .font-mono {
+                font-size: 0.65rem;
+            }
         }
     </style>
 </head>
@@ -151,6 +314,11 @@
                     <div class="h-8 w-8 rounded-xl grid place-items-center font-bold" style="background: var(--ibm-blue-60); color: white;">V</div>
                     <div class="font-semibold">VeriTrust</div>
                 </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
                 <div class="flex items-center gap-2">
                     <button class="nav-tab btn-secondary" data-tab="verify">Verify Content</button>
                     <button class="nav-tab btn-secondary" data-tab="identity">Digital ID</button>
@@ -160,6 +328,14 @@
             </div>
         </div>
     </nav>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="nav-tab btn-secondary" data-tab="verify">Verify Content</button>
+        <button class="nav-tab btn-secondary" data-tab="identity">Digital ID</button>
+        <button class="nav-tab btn-secondary" data-tab="publications">Publications</button>
+        <button class="nav-tab btn-secondary" data-tab="contact">Contact</button>
+    </div>
 
     <!-- Main Content -->
     <main>
@@ -630,9 +806,19 @@
             // ============================================================
             // Tab Navigation
             // ============================================================
+            
+            // Hamburger menu toggle
+            $('#hamburger').click(function() {
+                $('#mobileMenu').toggleClass('active');
+                $(this).toggleClass('active');
+            });
+            
             $('.nav-tab').click(function() {
                 const tab = $(this).data('tab');
                 switchTab(tab);
+                // Close mobile menu after selection
+                $('#mobileMenu').removeClass('active');
+                $('#hamburger').removeClass('active');
             });
 
             function switchTab(tab) {
