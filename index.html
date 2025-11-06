@@ -322,6 +322,7 @@
                 <div class="flex items-center gap-2">
                     <button class="nav-tab btn-secondary" data-tab="verify">Verify Content</button>
                     <button class="nav-tab btn-secondary" data-tab="identity">Digital ID</button>
+                    <button class="nav-tab btn-secondary" data-tab="about">About Us</button>
                     <button class="nav-tab btn-secondary" data-tab="Education">Education</button>
                     <button class="nav-tab btn-secondary" data-tab="contact">Ask VeriTrust</button>
                 </div>
@@ -333,6 +334,7 @@
     <div class="mobile-menu" id="mobileMenu">
         <button class="nav-tab btn-secondary" data-tab="verify">Verify Content</button>
         <button class="nav-tab btn-secondary" data-tab="identity">Digital ID</button>
+        <button class="nav-tab btn-secondary" data-tab="about">About Us</button>
         <button class="nav-tab btn-secondary" data-tab="Education">Education</button>
         <button class="nav-tab btn-secondary" data-tab="contact">Ask VeriTrust</button>
     </div>
@@ -517,6 +519,197 @@
                             </div>
                             <div id="identity-status" class="text-sm" style="color: var(--text-secondary); display: none;"></div>
                         </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- About Us Tab -->
+        <div id="about-tab" class="tab-content">
+            <section class="w-full max-w-5xl mx-auto p-6">
+                <!-- Hero Section -->
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold tracking-tight">About VeriTrust</h2>
+                    <p class="text-lg mt-3" style="color: var(--text-secondary)">Building trust in the digital age through verifiable content and identity.</p>
+                </div>
+
+                <!-- Mission & Vision -->
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="card p-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="h-12 w-12 rounded-xl grid place-items-center" style="background: var(--ibm-blue-60); color: white;">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold">Our Mission</h3>
+                        </div>
+                        <p style="color: var(--text-secondary)">
+                            To provide cutting-edge tools that enable individuals and organizations to verify the authenticity of digital content, 
+                            protect intellectual property, and establish trusted digital identities in an era of AI-generated media.
+                        </p>
+                    </div>
+
+                    <div class="card p-6">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="h-12 w-12 rounded-xl grid place-items-center" style="background: var(--ibm-blue-60); color: white;">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold">Our Vision</h3>
+                        </div>
+                        <p style="color: var(--text-secondary)">
+                            A world where digital content can be trusted, creators are properly attributed, and identity verification 
+                            is seamless, secure, and privacy-preserving for everyone.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- What We Do -->
+                <div class="card p-6 mb-8">
+                    <h3 class="text-2xl font-semibold mb-4">What We Do</h3>
+                    <div class="space-y-4">
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="h-8 w-8 rounded-lg grid place-items-center" style="background: var(--ibm-blue-30); color: white;">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-1">Content Verification</h4>
+                                <p class="text-sm" style="color: var(--text-secondary)">
+                                    Advanced detection systems combining watermark analysis, C2PA content credentials, and forensic signals 
+                                    to identify AI-generated content and verify authenticity.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="h-8 w-8 rounded-lg grid place-items-center" style="background: var(--ibm-blue-30); color: white;">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-1">Digital Identity</h4>
+                                <p class="text-sm" style="color: var(--text-secondary)">
+                                    Decentralized identity (DID) solutions integrated with biometric authentication (Axiam Face Sign-In) 
+                                    and cryptographic signatures for secure, privacy-preserving identity verification.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="h-8 w-8 rounded-lg grid place-items-center" style="background: var(--ibm-blue-30); color: white;">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-1">Ownership & Attribution</h4>
+                                <p class="text-sm" style="color: var(--text-secondary)">
+                                    Signed attestations and device-bound keys that enable creators to prove ownership and maintain 
+                                    provenance chains for their digital content.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Core Principles -->
+                <div class="card p-6 mb-8">
+                    <h3 class="text-2xl font-semibold mb-4">Core Principles</h3>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="text-center p-4">
+                            <div class="text-3xl mb-2">🔒</div>
+                            <h4 class="font-semibold mb-2">Privacy First</h4>
+                            <p class="text-sm" style="color: var(--text-secondary)">
+                                Zero-retention by default. Your data stays in your browser.
+                            </p>
+                        </div>
+                        <div class="text-center p-4">
+                            <div class="text-3xl mb-2">🔓</div>
+                            <h4 class="font-semibold mb-2">Open Standards</h4>
+                            <p class="text-sm" style="color: var(--text-secondary)">
+                                Built on W3C DIDs, C2PA, and open cryptographic protocols.
+                            </p>
+                        </div>
+                        <div class="text-center p-4">
+                            <div class="text-3xl mb-2">⚡</div>
+                            <h4 class="font-semibold mb-2">User Empowerment</h4>
+                            <p class="text-sm" style="color: var(--text-secondary)">
+                                You control your identity and content verification.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technology Stack -->
+                <div class="card p-6 mb-8">
+                    <h3 class="text-2xl font-semibold mb-4">Technology Stack</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="font-semibold mb-2" style="color: var(--ibm-blue-60)">Security & Cryptography</h4>
+                            <ul class="text-sm space-y-1" style="color: var(--text-secondary)">
+                                <li>• WebCrypto API (ECDSA P-256)</li>
+                                <li>• SHA-256 fingerprinting</li>
+                                <li>• JWK (JSON Web Keys)</li>
+                                <li>• Client-side key generation</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-2" style="color: var(--ibm-blue-60)">Identity & Standards</h4>
+                            <ul class="text-sm space-y-1" style="color: var(--text-secondary)">
+                                <li>• W3C Decentralized Identifiers (DIDs)</li>
+                                <li>• C2PA Content Credentials</li>
+                                <li>• Passkey integration</li>
+                                <li>• Biometric authentication (Axiam)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-2" style="color: var(--ibm-blue-60)">AI Detection</h4>
+                            <ul class="text-sm space-y-1" style="color: var(--text-secondary)">
+                                <li>• Watermark detection algorithms</li>
+                                <li>• Model forensic analysis</li>
+                                <li>• Metadata extraction</li>
+                                <li>• Multi-modal verification</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-2" style="color: var(--ibm-blue-60)">Privacy & Storage</h4>
+                            <ul class="text-sm space-y-1" style="color: var(--text-secondary)">
+                                <li>• Browser LocalStorage</li>
+                                <li>• Zero server retention</li>
+                                <li>• Client-side processing</li>
+                                <li>• Encrypted key storage</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team & Contact -->
+                <div class="card p-6">
+                    <h3 class="text-2xl font-semibold mb-4">Get in Touch</h3>
+                    <p class="mb-4" style="color: var(--text-secondary)">
+                        VeriTrust is committed to advancing digital trust through innovative technology. Whether you're a content creator, 
+                        publisher, enterprise, or researcher, we'd love to hear from you.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="#" onclick="event.preventDefault(); document.querySelector('[data-tab=contact]').click();" class="btn-primary">
+                            Contact Us
+                        </a>
+                        <a href="#" onclick="event.preventDefault(); document.querySelector('[data-tab=Education]').click();" class="btn-secondary">
+                            View Research
+                        </a>
                     </div>
                 </div>
             </section>
