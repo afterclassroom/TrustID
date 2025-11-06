@@ -322,8 +322,8 @@
                 <div class="flex items-center gap-2">
                     <button class="nav-tab btn-secondary" data-tab="verify">Verify Content</button>
                     <button class="nav-tab btn-secondary" data-tab="identity">Digital ID</button>
-                    <button class="nav-tab btn-secondary" data-tab="publications">Publications</button>
-                    <button class="nav-tab btn-secondary" data-tab="contact">Contact</button>
+                    <button class="nav-tab btn-secondary" data-tab="Education">Education</button>
+                    <button class="nav-tab btn-secondary" data-tab="contact">Ask VeriTrust</button>
                 </div>
             </div>
         </div>
@@ -333,8 +333,8 @@
     <div class="mobile-menu" id="mobileMenu">
         <button class="nav-tab btn-secondary" data-tab="verify">Verify Content</button>
         <button class="nav-tab btn-secondary" data-tab="identity">Digital ID</button>
-        <button class="nav-tab btn-secondary" data-tab="publications">Publications</button>
-        <button class="nav-tab btn-secondary" data-tab="contact">Contact</button>
+        <button class="nav-tab btn-secondary" data-tab="Education">Education</button>
+        <button class="nav-tab btn-secondary" data-tab="contact">Ask VeriTrust</button>
     </div>
 
     <!-- Main Content -->
@@ -522,15 +522,15 @@
             </section>
         </div>
 
-        <!-- Publications Tab -->
-        <div id="publications-tab" class="tab-content">
+        <!-- Education Tab -->
+        <div id="Education-tab" class="tab-content">
             <section class="w-full max-w-5xl mx-auto p-6">
                 <div class="mb-4">
-                    <h2 class="text-2xl font-semibold tracking-tight">Publications</h2>
+                    <h2 class="text-2xl font-semibold tracking-tight">Education</h2>
                     <p class="text-sm mt-1" style="color: var(--text-secondary)">Research, whitepapers, and technical notes.</p>
                 </div>
                 <div class="card p-6">
-                    <div id="publications-list" class="text-sm" style="color: var(--text-secondary)">Loading…</div>
+                    <div id="Education-list" class="text-sm" style="color: var(--text-secondary)">Loading…</div>
                 </div>
             </section>
         </div>
@@ -539,7 +539,7 @@
         <div id="contact-tab" class="tab-content">
             <section class="w-full max-w-5xl mx-auto p-6">
                 <div class="mb-4">
-                    <h2 class="text-2xl font-semibold tracking-tight">Contact us</h2>
+                    <h2 class="text-2xl font-semibold tracking-tight">Ask VeriTrust</h2>
                     <p class="text-sm mt-1" style="color: var(--text-secondary)">We'd love to hear from you.</p>
                 </div>
                 <div class="card p-6">
@@ -767,7 +767,7 @@
                     };
                 },
 
-                publications: async function() {
+                Education: async function() {
                     await sleep(250);
                     return {
                         ok: true,
@@ -834,9 +834,9 @@
                     }
                 });
 
-                // Load publications if switching to that tab
-                if (tab === 'publications') {
-                    loadPublications();
+                // Load Education if switching to that tab
+                if (tab === 'Education') {
+                    loadEducation();
                 }
             }
 
@@ -1149,14 +1149,14 @@
             }
 
             // ============================================================
-            // Publications Tab
+            // Education Tab
             // ============================================================
-            async function loadPublications() {
+            async function loadEducation() {
                 try {
-                    $('#publications-list').html('<div class="text-sm" style="color: var(--text-secondary)">Loading…</div>');
+                    $('#Education-list').html('<div class="text-sm" style="color: var(--text-secondary)">Loading…</div>');
                     
-                    const result = await mockAPI.publications();
-                    if (!result.ok) throw new Error('Failed to load publications');
+                    const result = await mockAPI.Education();
+                    if (!result.ok) throw new Error('Failed to load Education');
                     
                     const html = `
                         <div class="grid md:grid-cols-2 gap-4">
@@ -1173,9 +1173,9 @@
                         </div>
                     `;
                     
-                    $('#publications-list').html(html);
+                    $('#Education-list').html(html);
                 } catch (e) {
-                    $('#publications-list').html(`<div class="text-sm text-red-400">${e.message}</div>`);
+                    $('#Education-list').html(`<div class="text-sm text-red-400">${e.message}</div>`);
                 }
             }
 
