@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - VeriTrust</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-card: #fff;
+            --border-color: #e0e0e0;
+            --text-primary: #161616;
+            --text-secondary: #525252;
+            --text-tertiary: #8d8d8d;
+            --ibm-blue-60: #0F62FE;
+            --ibm-blue-50: #4589FF;
+            --ibm-blue-30: #A6C8FF;
+            --bg-surface: #f9f9f9;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--ibm-blue-60), var(--ibm-blue-50));
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(15, 98, 254, 0.3);
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+        
+        .input-field:focus {
+            border-color: var(--ibm-blue-60);
+            box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.1);
+        }
+        
+        .link-text {
+            color: var(--ibm-blue-60);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .link-text:hover {
+            text-decoration: underline;
+        }
+        
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .qr-code-container {
+            background: #f5f5f5;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        
+        .timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #f59e0b;
+            margin: 1rem 0;
+        }
+        
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .btn-cancel:hover {
+            background: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Modal for Face Sign In -->
+    <div class="modal-overlay" id="faceSignInModal">
+        <div class="modal-content">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-12 h-12 mb-3 rounded-full bg-gradient-to-br from-blue-500 to-purple-600">
+                    <i class="fas fa-face-smile text-white text-xl"></i>
+                </div>
+                <h2 class="text-xl font-bold mb-2" style="color: var(--text-primary);">Sign In With Face</h2>
+                <p class="text-sm mb-4" style="color: var(--text-secondary);">Scan QR code with Axiam app to verify your identity</p>
+            </div>
+            
+            <div class="qr-code-container">
+                <div class="qr-code" id="qrCode">
+                    <!-- QR Code will be generated here -->
+                </div>
+                <div class="text-sm mt-3" style="color: var(--text-secondary);">
+                    Email: <span class="font-semibold" id="modalEmail" style="color: var(--text-primary);"></span>
+                </div>
+            </div>
+            
+            <div class="text-center mb-4">
+                <div class="text-sm" style="color: var(--text-secondary);">Expires in</div>
+                <div class="timer" id="countdown">4:00</div>
+            </div>
+            
+            <button class="btn-cancel" id="cancelButton">Cancel</button>
+        </div>
+    </div>
+    <div class="card w-full max-w-md p-8 mx-4">
+        <!-- Logo & Title -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600">
+                <i class="fas fa-user-plus text-white text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold mb-2" style="color: var(--text-primary);">Create Account</h1>
+            <p style="color: var(--text-secondary);">Sign up for VeriTrust with facial</p>
+        </div>
+
+        <!-- Signup Form -->
+        <form id="signupForm">
+            <!-- Name Input -->
+            <div class="mb-4">
+                <label for="name" class="block text-sm font-medium mb-2" style="color: var(--text-primary);">
+                    Full Name
+                </label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    class="input-field" 
+                    placeholder="Enter your full name"
+                    required
+                >
+            </div>
+
+            <!-- Email Input -->
+            <div class="mb-6">
+                <label for="email" class="block text-sm font-medium mb-2" style="color: var(--text-primary);">
+                    Email Address
+                </label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="input-field" 
+                    placeholder="Enter your email"
+                    required
+                >
+            </div>
+
+            <!-- Sign In with Facial Button -->
+            <button type="submit" class="btn-primary mb-6">
+                <img src="icon1.png" alt="Face Icon" class="w-5 h-5"/>
+                <span>Sign In With Face</span>
+            </button>
+
+            <!-- Divider -->
+            <div class="relative mb-6">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t" style="border-color: var(--border-color);"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-white" style="color: var(--text-tertiary);">OR</span>
+                </div>
+            </div>
+
+            <!-- Login Link -->
+            <div class="text-center">
+                <span style="color: var(--text-secondary);">Already have an account? </span>
+                <a href="Login.html" class="link-text">Login</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let countdownInterval = null;
+        let qrCodeInstance = null;
+        
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for(let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+        
+        function setCookie(name, value, days = 7) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+        }
+        
+        // Redirect to index if already logged in
+        if (getCookie('veritrust_user')) {
+            window.location.href = 'index.html';
+        }
+        
+        // Show modal with QR code
+        function showFaceSignInModal(name, email) {
+            const modal = document.getElementById('faceSignInModal');
+            const modalEmail = document.getElementById('modalEmail');
+            const qrCodeContainer = document.getElementById('qrCode');
+            
+            // Set email in modal
+            modalEmail.textContent = email;
+            
+            // Clear previous QR code
+            qrCodeContainer.innerHTML = '';
+            
+            // Generate QR code with signup data
+            const qrData = JSON.stringify({
+                action: 'signup',
+                name: name,
+                email: email,
+                timestamp: Date.now(),
+                sessionId: 'session_' + Math.random().toString(36).substr(2, 9)
+            });
+            
+            qrCodeInstance = new QRCode(qrCodeContainer, {
+                text: qrData,
+                width: 200,
+                height: 200,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Show modal
+            modal.classList.add('active');
+            
+            // Start countdown (4 minutes = 240 seconds)
+            startCountdown(240);
+        }
+        
+        // Start countdown timer
+        function startCountdown(seconds) {
+            const countdownElement = document.getElementById('countdown');
+            let remaining = seconds;
+            
+            // Clear any existing interval
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
+            countdownInterval = setInterval(() => {
+                const minutes = Math.floor(remaining / 60);
+                const secs = remaining % 60;
+                countdownElement.textContent = `${minutes}:${secs.toString().padStart(2, '0')}`;
+                
+                remaining--;
+                
+                if (remaining < 0) {
+                    clearInterval(countdownInterval);
+                    hideModal();
+                    alert('QR code expired. Please try again.');
+                }
+            }, 1000);
+        }
+        
+        // Hide modal
+        function hideModal() {
+            const modal = document.getElementById('faceSignInModal');
+            modal.classList.remove('active');
+            
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            
+            // Reset countdown display
+            document.getElementById('countdown').textContent = '4:00';
+        }
+        
+        // Cancel button
+        document.getElementById('cancelButton').addEventListener('click', function() {
+            hideModal();
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('faceSignInModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideModal();
+            }
+        });
+        
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            
+            if (!name || !email) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Check if email already exists
+            const registeredUsers = JSON.parse(localStorage.getItem('veritrust_users') || '{}');
+            if (registeredUsers[email]) {
+                alert('Email already registered. Please login instead.');
+                window.location.href = 'Login.html';
+                return;
+            }
+            
+            // Show modal with QR code
+            showFaceSignInModal(name, email);
+            
+            // Simulate facial recognition verification (wait 10 seconds for user to scan QR)
+            await new Promise(resolve => setTimeout(resolve, 10000));
+            
+            // Mock successful facial recognition (95% success rate)
+            const success = Math.random() > 0.05;
+            
+            if (success) {
+                // Hide modal
+                hideModal();
+                
+                // Create user object
+                const userData = {
+                    name: name,
+                    email: email,
+                    registeredAt: new Date().toISOString(),
+                    faceId: 'face_' + Math.random().toString(36).substr(2, 9)
+                };
+                
+                // Save user data to localStorage
+                registeredUsers[email] = userData;
+                localStorage.setItem('veritrust_users', JSON.stringify(registeredUsers));
+                
+                // Notify success and redirect to login
+                alert('Signup successful! Please login with your account.');
+                window.location.href = 'Login.html';
+            } else {
+                hideModal();
+                alert('Facial recognition enrollment failed. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

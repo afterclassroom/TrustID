@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VeriTrust - Digital ID & Content Verification</title>
-    
+    <link href="https://kit-pro.fontawesome.com/releases/v5.15.3/css/pro.min.css" rel="stylesheet" type="text/css">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -303,6 +303,91 @@
                 font-size: 0.65rem;
             }
         }
+        
+        /* Hide Digital ID tab when not logged in */
+        .digital-id-tab {
+            display: none;
+        }
+        
+        .digital-id-tab.show {
+            display: inline-flex;
+        }
+        
+        /* User menu styles */
+        .user-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .user-menu-btn {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .user-menu-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+        
+        .user-dropdown.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: background 0.2s;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        
+        .dropdown-item:hover {
+            background: var(--bg-surface);
+        }
+        
+        .dropdown-item:first-child {
+            border-radius: 0.75rem 0.75rem 0 0;
+        }
+        
+        .dropdown-item:last-child {
+            border-radius: 0 0 0.75rem 0.75rem;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 0.25rem 0;
+        }
+        
+        .dropdown-item.danger {
+            color: #da1e28;
+        }
+        
+        .dropdown-item.danger:hover {
+            background: #fff1f1;
+        }
     </style>
 </head>
 <body>
@@ -321,10 +406,29 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <button class="nav-tab btn-secondary" data-tab="verify">Verify Content</button>
-                    <button class="nav-tab btn-secondary" data-tab="identity">Digital ID</button>
+                    <button class="nav-tab btn-secondary digital-id-tab" data-tab="identity">Digital ID</button>
                     <button class="nav-tab btn-secondary" data-tab="about">About Us</button>
                     <button class="nav-tab btn-secondary" data-tab="Education">Education</button>
                     <button class="nav-tab btn-secondary" data-tab="contact">Ask VeriTrust</button>
+                    <button class="nav-tab btn-primary" id="login-btn-desktop">Login</button>
+                    <div class="user-dropdown" id="user-dropdown-desktop" style="display: none;">
+                        <button class="flex items-center justify-between btn-primary user-menu-btn" id="user-menu-desktop">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="user-name"></span>
+                            <i class="fas fa-chevron-down" style="font-size: 0.7em;"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item" style="pointer-events: none; color: var(--text-secondary);">
+                                <i class="fas fa-user"></i>
+                                <span class="user-email"></span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item danger" id="logout-link-desktop">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -333,10 +437,29 @@
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
         <button class="nav-tab btn-secondary" data-tab="verify">Verify Content</button>
-        <button class="nav-tab btn-secondary" data-tab="identity">Digital ID</button>
+        <button class="nav-tab btn-secondary digital-id-tab" data-tab="identity">Digital ID</button>
         <button class="nav-tab btn-secondary" data-tab="about">About Us</button>
         <button class="nav-tab btn-secondary" data-tab="Education">Education</button>
         <button class="nav-tab btn-secondary" data-tab="contact">Ask VeriTrust</button>
+        <button class="nav-tab btn-primary" id="login-btn-mobile">Login</button>
+        <div class="user-dropdown" id="user-dropdown-mobile" style="display: none;">
+            <button class="flex items-center justify-between btn-primary user-menu-btn" id="user-menu-mobile">
+                <i class="fas fa-user-circle"></i>
+                <span class="user-name"></span>
+                <i class="fas fa-chevron-down" style="font-size: 0.7em;"></i>
+            </button>
+            <div class="dropdown-menu">
+                <div class="dropdown-item" style="pointer-events: none; color: var(--text-secondary);">
+                    <i class="fas fa-user"></i>
+                    <span class="user-email"></span>
+                </div>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item danger" id="logout-link-mobile">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- Main Content -->
@@ -789,6 +912,130 @@
 
     <script>
         $(document).ready(function() {
+            // ============================================================
+            // Authentication Helper Functions
+            // ============================================================
+            function setCookie(name, value, days = 7) {
+                const expires = new Date();
+                expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+                document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+            }
+            
+            function getCookie(name) {
+                const nameEQ = name + "=";
+                const ca = document.cookie.split(';');
+                for(let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+                }
+                return null;
+            }
+            
+            function deleteCookie(name) {
+                document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
+            }
+            
+            function isUserLoggedIn() {
+                return getCookie('veritrust_user') !== null;
+            }
+            
+            function getUserFromCookie() {
+                // Try to get from cookie first
+                const userData = getCookie('veritrust_user');
+                if (userData) {
+                    try {
+                        return JSON.parse(decodeURIComponent(userData));
+                    } catch (e) {
+                        console.error('Error parsing cookie:', e);
+                    }
+                }
+                
+                // Fallback to localStorage
+                const localUser = localStorage.getItem('veritrust_current_user');
+                if (localUser) {
+                    try {
+                        return JSON.parse(localUser);
+                    } catch (e) {
+                        console.error('Error parsing localStorage:', e);
+                    }
+                }
+                
+                return null;
+            }
+            
+            function updateLoginButton(userData) {
+                if (userData) {
+                    // Hide login buttons
+                    $('#login-btn-desktop, #login-btn-mobile').hide();
+                    
+                    // Show user dropdowns
+                    $('#user-dropdown-desktop, #user-dropdown-mobile').show();
+                    
+                    // Update user name and email in dropdowns
+                    const displayName = userData.name || userData.email;
+                    const shortName = displayName.length > 17 ? displayName.substring(0, 14) + '...' : displayName;
+                    
+                    $('.user-dropdown .user-name').text(shortName);
+                    $('.user-dropdown .user-email').text(userData.email);
+                    
+                    // Toggle dropdown on button click
+                    $('#user-menu-desktop, #user-menu-mobile').off('click').click(function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        $(this).parent('.user-dropdown').toggleClass('active');
+                    });
+                    
+                    // Handle logout link click
+                    $('#logout-link-desktop, #logout-link-mobile').off('click').click(function(e) {
+                        e.preventDefault();
+                        if (confirm(`Logout from ${userData.name || userData.email}?`)) {
+                            deleteCookie('veritrust_user');
+                            // Keep localStorage data, only remove cookie
+                            $('.digital-id-tab').removeClass('show');
+                            location.reload();
+                        }
+                    });
+                    
+                    // Close dropdown when clicking outside
+                    $(document).off('click.dropdown').on('click.dropdown', function(e) {
+                        if (!$(e.target).closest('.user-dropdown').length) {
+                            $('.user-dropdown').removeClass('active');
+                        }
+                    });
+                } else {
+                    // Show login buttons
+                    $('#login-btn-desktop, #login-btn-mobile').show();
+                    
+                    // Hide user dropdowns
+                    $('#user-dropdown-desktop, #user-dropdown-mobile').hide();
+                    
+                    // Setup login button click handlers
+                    $('#login-btn-desktop, #login-btn-mobile').off('click').click(function() {
+                        window.location.href = 'Login.html';
+                    });
+                    
+                    // Remove dropdown click handler
+                    $(document).off('click.dropdown');
+                }
+            }
+            
+            // Check login status on page load
+            const currentUser = getUserFromCookie();
+            console.log('Current user from cookie:', currentUser); // DEBUG
+            
+            if (currentUser) {
+                console.log('User logged in:', currentUser.name, currentUser.email); // DEBUG
+                $('.digital-id-tab').addClass('show');
+                updateLoginButton(currentUser);
+            } else {
+                console.log('No user logged in'); // DEBUG
+                // Initialize login button click handlers for non-logged-in users
+                $('#login-btn-desktop, #login-btn-mobile').click(function() {
+                    window.location.href = 'Login.html';
+                });
+            }
+            
             // ============================================================
             // Global State
             // ============================================================
