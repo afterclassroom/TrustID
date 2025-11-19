@@ -410,7 +410,7 @@
                     <button class="nav-tab btn-secondary" data-tab="about">About Us</button>
                     <button class="nav-tab btn-secondary" data-tab="Education">Education</button>
                     <button class="nav-tab btn-secondary" data-tab="contact">Ask VeriTrust</button>
-                    <button class="nav-tab btn-primary" id="login-btn-desktop">Login</button>
+                    <button class="btn-primary" id="login-btn-desktop">Login</button>
                     <div class="user-dropdown" id="user-dropdown-desktop" style="display: none;">
                         <button class="flex items-center justify-between btn-primary user-menu-btn" id="user-menu-desktop">
                             <i class="fas fa-user-circle"></i>
@@ -441,7 +441,7 @@
         <button class="nav-tab btn-secondary" data-tab="about">About Us</button>
         <button class="nav-tab btn-secondary" data-tab="Education">Education</button>
         <button class="nav-tab btn-secondary" data-tab="contact">Ask VeriTrust</button>
-        <button class="nav-tab btn-primary" id="login-btn-mobile">Login</button>
+        <button class=" btn-primary" id="login-btn-mobile">Login</button>
         <div class="user-dropdown" id="user-dropdown-mobile" style="display: none;">
             <button class="flex items-center justify-between btn-primary user-menu-btn" id="user-menu-mobile">
                 <i class="fas fa-user-circle"></i>
@@ -991,7 +991,7 @@
                         e.preventDefault();
                         if (confirm(`Logout from ${userData.name || userData.email}?`)) {
                             deleteCookie('veritrust_user');
-                            // Keep localStorage data, only remove cookie
+                            localStorage.removeItem('veritrust_current_user');
                             $('.digital-id-tab').removeClass('show');
                             location.reload();
                         }
