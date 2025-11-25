@@ -1,0 +1,84 @@
+<!-- Navbar -->
+<nav class="vt-navbar">
+    <div class="max-w-5xl mx-auto px-6">
+        <div class="d-flex align-items-center justify-content-between py-3 flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="vt-logo">V</div>
+                <div class="fw-semibold">VeriTrust</div>
+            </div>
+            <button class="hamburger" id="hamburger" type="button">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="desktop-nav d-flex align-items-center gap-2 nav-tabs-container">
+                <% if current_page?(root_path) %>
+                    <button class="nav-tab-vt active" data-tab="verify">Verify Content</button>
+                    <% if user_signed_in? %>
+                        <button class="nav-tab-vt" data-tab="identity">Digital ID</button>
+                    <% end %>
+                    <button class="nav-tab-vt" data-tab="about">About Us</button>
+                    <button class="nav-tab-vt" data-tab="Education">Education</button>
+                    <button class="nav-tab-vt" data-tab="contact">Ask VeriTrust</button>
+                <% end %>
+                <% if user_signed_in? %>
+                    <div class="user-dropdown" id="user-dropdown-desktop">
+                        <button class="user-menu-btn" id="user-menu-desktop" type="button" style="background: transparent; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
+                            <% if current_user.avatar.attached? %>
+                                <%= image_tag current_user.avatar, style: 'width: 2.5rem; height: 2.5rem; border-radius: 50%; object-fit: cover; border: 2px solid #e0e0e0;' %>
+                            <% else %>
+                                <i class="bi bi-person-circle" style="font-size: 2.5rem; color: #667eea;"></i>
+                            <% end %>
+                            <i class="bi bi-chevron-down" style="font-size: 0.7em; color: var(--text-secondary);"></i>
+                        </button>
+                        <div class="dropdown-menu-vt">
+                            <div class="dropdown-item-vt" style="pointer-events: none; color: var(--text-secondary);">
+                                <i class="bi bi-person"></i>
+                                <span><%= current_user.email %></span>
+                            </div>
+                            <div class="dropdown-divider-vt"></div>
+                            <!-- <a href="/users/edit" class="dropdown-item-vt">
+                                <i class="bi bi-person-lines-fill"></i>
+                                <span>Profile</span>
+                            </a>
+                            <div class="dropdown-divider-vt"></div> -->
+                            <%= link_to destroy_user_session_path, method: :delete, class: "dropdown-item-vt danger" do %>
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Logout</span>
+                            <% end %>
+                        </div>
+                    </div>
+                <% else %>
+                    <a href="/users/sign_in" class="btn-vt-primary">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                    </a>
+                    <!--
+                    <a href="/facial_signup/new" class="btn-vt-primary">
+                        <i class="bi bi-person-plus me-1"></i>Sign Up
+                    </a> -->
+                <% end %>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+    <div class="d-flex flex-column gap-2">
+        <% if user_signed_in? %>
+            <a href="/users/edit" class="btn-vt-primary text-center">
+                <i class="bi bi-person-lines-fill me-1"></i>Profile
+            </a>
+            <%= link_to destroy_user_session_path, method: :delete, class: "btn btn-danger text-center" do %>
+                <i class="bi bi-box-arrow-right me-1"></i>Logout
+            <% end %>
+        <% else %>
+            <a href="/users/sign_in" class="btn-vt-primary text-center">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+            </a>
+            <a href="/facial_signup/new" class="btn-vt-primary text-center">
+                <i class="bi bi-person-plus me-1"></i>Sign Up
+            </a>
+        <% end %>
+    </div>
+</div>

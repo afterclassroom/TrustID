@@ -1,0 +1,359 @@
+﻿<style>
+    /* Page-specific styles for signin page */
+    .face-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        object-fit: contain;
+    }
+
+    .loading-spinner {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    .spinner {
+        width: 2rem;
+        height: 2rem;
+        margin: 0 auto 0.5rem;
+    }
+</style>
+
+<div class="card">
+    <!-- Logo & Title -->
+    <div class="text-center mb-4">
+        <div class="icon-container">
+            <i class="bi bi-fingerprint" style="font-size: 2rem;"></i>
+        </div>
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Login to your VeriTrust account</p>
+    </div>
+
+    <!-- Status Messages -->
+    <div id="status-container"></div>
+    <div id="error-container"></div>
+
+    <!-- Email Input Form -->
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { id: 'loginForm' }) do |f| %>
+        <!-- Email Input -->
+        <div class="mb-4">
+            <%= f.label :email, "Email Address", class: "field-label" %>
+            <%= f.email_field :email, autofocus: true, class: "input-field", placeholder: "Enter your email", required: false, id: "email-input" %>
+        </div>
+
+        <!-- Sign In With Face Button -->
+        <button type="button" class="btn-primary mb-4" id="face-login-btn">
+            <%= image_tag "axiam/logo.png", alt: "Axiam", class: "face-icon" %>
+            <span id="btn-text">Sign In With Face</span>
+        </button>
+    <% end %>
+
+    <!-- Loading Spinner -->
+    <div id="loading-container" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p style="color: var(--text-secondary, #525252); font-size: 0.875rem;">Check your mobile app for notification</p>
+        </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider text-center">
+        <span class="divider-text">OR</span>
+    </div>
+
+    <!-- Sign Up Link -->
+    <div class="text-center">
+        <span style="color: var(--text-secondary);">Don't have an account? </span>
+        <%= link_to "Sign Up", new_user_registration_path, class: "link-text" %>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@rails/actioncable@7.0.0/app/assets/javascripts/actioncable.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔄 Login page script loaded');
+    
+    const emailInput = document.getElementById('email-input');
+    const faceLoginBtn = document.getElementById('face-login-btn');
+    const btnText = document.getElementById('btn-text');
+    const statusContainer = document.getElementById('status-container');
+    const errorContainer = document.getElementById('error-container');
+    const loadingContainer = document.getElementById('loading-container');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    
+    console.log('Elements found:', {
+        emailInput: !!emailInput,
+        faceLoginBtn: !!faceLoginBtn,
+        btnText: !!btnText,
+        csrfToken: !!csrfToken
+    });
+    
+    let cable = null;
+    let subscription = null;
+    let loginTimeout = null;
+    
+    // Helper functions
+    function showStatus(message) {
+        statusContainer.innerHTML = `<div class="status-message">${message}</div>`;
+        errorContainer.innerHTML = '';
+    }
+    
+    function showError(message) {
+        errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
+        statusContainer.innerHTML = '';
+        loadingContainer.style.display = 'none';
+    }
+    
+    function clearMessages() {
+        statusContainer.innerHTML = '';
+        errorContainer.innerHTML = '';
+    }
+    
+    function cleanup() {
+        if (loginTimeout) {
+            clearTimeout(loginTimeout);
+            loginTimeout = null;
+        }
+        if (subscription) {
+            subscription.unsubscribe();
+            subscription = null;
+        }
+        if (cable) {
+            cable.disconnect();
+            cable = null;
+        }
+    }
+    
+    // Enable/disable button based on email input
+    if (emailInput && faceLoginBtn) {
+        console.log('👂 Setting up email input listener');
+        
+        // Simple email validation function
+        function isValidEmail(email) {
+            // Check if email has @ and at least one character before and after @
+            const atIndex = email.indexOf('@');
+            return atIndex > 0 && atIndex < email.length - 1 && email.includes('.');
+        }
+        
+        emailInput.addEventListener('input', function() {
+            const email = this.value.trim();
+            console.log('📧 Email input:', email);
+            if (email && isValidEmail(email)) {
+                console.log('✅ Email valid, enabling button');
+                faceLoginBtn.disabled = false;
+            } else {
+                console.log('❌ Email invalid, disabling button');
+                faceLoginBtn.disabled = true;
+            }
+        });
+        
+        // Initial state - check if email already has value
+        const initialEmail = emailInput.value.trim();
+        console.log('🔍 Initial email value:', initialEmail);
+        if (initialEmail && isValidEmail(initialEmail)) {
+            console.log('✅ Initial email valid, enabling button');
+            faceLoginBtn.disabled = false;
+        } else {
+            console.log('❌ No valid initial email, disabling button');
+            faceLoginBtn.disabled = true;
+        }
+    } else {
+        console.error('❌ Elements not found:', { emailInput: !!emailInput, faceLoginBtn: !!faceLoginBtn });
+    }
+    
+    // Handle Face Login button click
+    faceLoginBtn.addEventListener('click', async function() {
+        const email = emailInput.value;
+        
+        if (!email || !email.includes('@')) {
+            showError('Please enter a valid email address');
+            return;
+        }
+        
+        try {
+            // Disable button and show loading
+            faceLoginBtn.disabled = true;
+            btnText.textContent = 'Looking up account...';
+            clearMessages();
+            
+            // Step 1: Lookup client
+            const lookupResponse = await fetch('/api/facial_sign_on/lookup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify({ email: email })
+            });
+            
+            const lookupResult = await lookupResponse.json();
+            
+            if (!lookupResult.success) {
+                // Handle specific error codes
+                switch (lookupResult.code) {
+                    case 1007:
+                        showError('No account found with this email address.');
+                        break;
+                    case 1002:
+                        showError('Please register your face first.');
+                        // Optional: redirect to facial registration
+                        // setTimeout(() => window.location.href = '/facial_signup/new', 2000);
+                        break;
+                    case 1013:
+                        showError(lookupResult.user_message || 'Account temporarily locked.');
+                        break;
+                    default:
+                        showError(lookupResult.user_message || 'Login failed. Please try again.');
+                }
+                btnText.textContent = 'Sign In With Face';
+                faceLoginBtn.disabled = false;
+                return;
+            }
+            
+            const clientId = lookupResult.data.client_id;
+            
+            // Step 2: Push notification
+            btnText.textContent = 'Sending notification...';
+            
+            const pushResponse = await fetch('/api/facial_sign_on/push_notification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify({ client_id: clientId })
+            });
+            
+            const pushResult = await pushResponse.json();
+            
+            if (!pushResult.success) {
+                if (pushResult.code === 1012) {
+                    showError('Please register your mobile device first.');
+                } else if (pushResult.code === 1020 || pushResult.code === 1021) {
+                    showError(pushResult.user_message || 'Too many requests. Please try again later.');
+                } else {
+                    showError(pushResult.user_message || 'Failed to send notification.');
+                }
+                btnText.textContent = 'Sign In With Face';
+                faceLoginBtn.disabled = false;
+                return;
+            }
+            
+            const verificationToken = pushResult.data.verification_token;
+            
+            // Step 3: Subscribe to ActionCable
+            btnText.textContent = 'Waiting for face scan...';
+            showStatus('Notification sent! Please check your mobile app and complete the face scan.');
+            loadingContainer.style.display = 'block';
+            
+            subscribeToChannel(verificationToken, email);
+            
+            // Set 5-minute timeout
+            loginTimeout = setTimeout(() => {
+                cleanup();
+                showError('Login timeout. Please try again.');
+                btnText.textContent = 'Sign In With Face';
+                faceLoginBtn.disabled = false;
+            }, 5 * 60 * 1000);
+            
+        } catch (error) {
+            console.error('Login error:', error);
+            showError('Network error. Please check your connection and try again.');
+            btnText.textContent = 'Sign In With Face';
+            faceLoginBtn.disabled = false;
+        }
+    });
+    
+    // Subscribe to ActionCable channel
+    function subscribeToChannel(verificationToken, email) {
+        // Create WebSocket connection to Axiam server
+        const cableUrl = '<%= ENV.fetch("AXIAM_CABLE_URL", "wss://api.axiam.io/cable") %>';
+        cable = ActionCable.createConsumer(cableUrl);
+        
+        // Subscribe to channel
+        subscription = cable.subscriptions.create(
+            {
+                channel: 'FacialSignOnLoginChannel',
+                token: verificationToken
+            },
+            {
+                connected: function() {
+                    console.log('✅ Connected to ActionCable');
+                    showStatus('Connected. Waiting for face scan...');
+                },
+                
+                disconnected: function() {
+                    console.log('❌ Disconnected from ActionCable');
+                },
+                
+                received: function(data) {
+                    console.log('📨 Received data:', data);
+                    handleLoginUpdate(data, email);
+                }
+            }
+        );
+    }
+    
+    // Handle login updates from ActionCable
+    async function handleLoginUpdate(data, email) {
+        if (data.status === 'verified') {
+            // ✅ Login successful!
+            console.log('Login verified:', data);
+            btnText.textContent = 'Login successful!';
+            showStatus('Login verified! Creating session...');
+            
+            // Create session on your server
+            await createUserSession(data.client_id, email);
+            
+        } else if (data.status === 'failed') {
+            // ❌ Login failed
+            console.error('Login failed:', data.error);
+            showError(data.error || 'Facial authentication failed. Please try again.');
+            btnText.textContent = 'Sign In With Face';
+            faceLoginBtn.disabled = false;
+            cleanup();
+        }
+    }
+    
+    // Create user session
+    async function createUserSession(clientId, email) {
+        try {
+            const response = await fetch('/api/sessions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify({
+                    client_id: clientId,
+                    email: email,
+                    login_method: 'facial_sign_on'
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showStatus('Session created! Redirecting...');
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1000);
+            } else {
+                showError('Failed to create session. Please try again.');
+                btnText.textContent = 'Sign In With Face';
+                faceLoginBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Session creation error:', error);
+            showError('Login failed. Please try again.');
+            btnText.textContent = 'Sign In With Face';
+            faceLoginBtn.disabled = false;
+        } finally {
+            cleanup();
+        }
+    }
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', cleanup);
+});
+</script>

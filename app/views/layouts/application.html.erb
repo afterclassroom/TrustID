@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>App</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+
+    <!-- jQuery for VeriTrust -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Store public credentials only (NO REDIS PASSWORD) -->
+    <script>
+      <% if axiam_credentials_js %>
+        window.SITE_CREDENTIALS = <%= axiam_credentials_js.to_json.html_safe %>;
+        // Only public info: channel_prefix and server_url
+      <% else %>
+        console.error('❌ Axiam credentials not configured properly');
+        window.SITE_CREDENTIALS = null;
+      <% end %>
+    </script>
+  </head>
+  <body class="d-flex flex-column min-vh-100" style="background-color: #ffffff; position: relative;">
+    <%= render 'layouts/header' %>
+    <%= render 'layouts/container' %>
+    <%= render 'layouts/footer' %>
+  </body>
+</html>

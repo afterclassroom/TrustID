@@ -1,0 +1,4 @@
+/* Only use Tailwind utilities, not base reset */
+@tailwind utilities;
+
+/* VeriTrust custom components will be added via veritrust.css */

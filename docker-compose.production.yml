@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.1
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASS}
+      MYSQL_DATABASE: ${DATABASE_NAME}
+    networks:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DATABASE_PASS}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: >
+      sh -c "
+        rm -f tmp/pids/server.pid &&
+        bundle exec rails db:migrate &&
+        bundle exec rails assets:precompile &&
+        bundle exec puma -C config/puma.rb
+      "
+    volumes:
+      # Mount only necessary directories for production
+      - ./public:/var/www/app/public
+      - ./log:/var/www/app/log
+      - ./tmp:/var/www/app/tmp
+      - ./config/credentials/production.key:/var/www/app/config/credentials/production.key:ro
+    ports:
+      # Bind to localhost only - Nginx will proxy to this
+      - "127.0.0.1:6000:6000"
+    env_file:
+      - .env.production
+    environment:
+      RAILS_ENV: production
+      RAILS_SERVE_STATIC_FILES: "true"
+      RAILS_LOG_TO_STDOUT: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:6000/up || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  mysql_data:
+
+networks:
+  backend:
+    driver: bridge

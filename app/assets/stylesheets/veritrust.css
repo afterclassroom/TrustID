@@ -1,0 +1,397 @@
+/* ============================================================================
+   VeriTrust - Shared Styles
+   IBM Carbon g10 Theme + VeriTrust Components
+   ============================================================================ */
+
+/* IBM Carbon g10 Theme Variables (Light Mode) */
+:root {
+    --bg-primary: #ffffff;
+    --bg-card: #fff;
+    --bg-surface: #f9f9f9;
+    --border-color: #e0e0e0;
+    --text-primary: #161616;
+    --text-secondary: #525252;
+    --text-tertiary: #8d8d8d;
+    --ibm-blue-60: #0F62FE;
+    --ibm-blue-50: #4589FF;
+    --ibm-blue-30: #A6C8FF;
+}
+
+/* ============================================================================
+   Global Body Styles
+   ============================================================================ */
+body {
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* ============================================================================
+   Navigation Bar
+   ============================================================================ */
+.vt-navbar {
+    background-color: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* ============================================================================
+   Navigation Tabs
+   ============================================================================ */
+.nav-tab-vt {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.nav-tab-vt:hover {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+.nav-tab-vt.active {
+    background: linear-gradient(90deg, var(--ibm-blue-60), var(--ibm-blue-50));
+    color: white;
+    border: none;
+}
+
+/* ============================================================================
+   Logo
+   ============================================================================ */
+.vt-logo {
+    height: 2rem;
+    width: 2rem;
+    border-radius: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    background: var(--ibm-blue-60);
+    color: white;
+}
+
+/* ============================================================================
+   Buttons
+   ============================================================================ */
+.btn-vt-primary {
+    background: linear-gradient(90deg, var(--ibm-blue-60), var(--ibm-blue-50));
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-vt-primary:hover {
+    opacity: 0.9;
+    color: white;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, var(--ibm-blue-60), var(--ibm-blue-50));
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-card);
+}
+
+/* ============================================================================
+   User Dropdown
+   ============================================================================ */
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.user-menu-btn {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dropdown-menu-vt {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 180px;
+    display: none;
+    z-index: 1000;
+}
+
+.user-dropdown.active .dropdown-menu-vt {
+    display: block;
+}
+
+.dropdown-item-vt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: background 0.2s;
+    font-size: 0.875rem;
+}
+
+.dropdown-item-vt:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+.dropdown-item-vt:first-child {
+    border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.dropdown-item-vt:last-child {
+    border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.dropdown-divider-vt {
+    height: 1px;
+    background: var(--border-color);
+    margin: 0.25rem 0;
+}
+
+.dropdown-item-vt.danger {
+    color: #da1e28;
+}
+
+.dropdown-item-vt.danger:hover {
+    background: #fff1f1;
+}
+
+/* ============================================================================
+   Hamburger Menu
+   ============================================================================ */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+    padding: 8px;
+    background: none;
+    border: none;
+}
+
+.hamburger span {
+    width: 24px;
+    height: 2px;
+    background-color: var(--text-primary);
+    transition: all 0.3s;
+}
+
+.mobile-menu {
+    display: none;
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+}
+
+.mobile-menu.active {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .desktop-nav {
+        display: none;
+    }
+    
+    .hamburger {
+        display: flex;
+    }
+}
+
+/* ============================================================================
+   Footer
+   ============================================================================ */
+.vt-footer {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.vt-footer a {
+    color: var(--ibm-blue-30);
+    text-decoration: underline;
+}
+
+.vt-footer a:hover {
+    color: var(--ibm-blue-50);
+}
+
+/* ============================================================================
+   Cards
+   ============================================================================ */
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+}
+
+/* ============================================================================
+   Form Inputs
+   ============================================================================ */
+.input-field {
+    width: 100% !important;
+    max-width: 100% !important;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    box-sizing: border-box;
+}
+
+.input-field:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ibm-blue-60);
+}
+
+.input-field::placeholder {
+    color: var(--text-tertiary);
+}
+
+/* ============================================================================
+   Pills / Badges
+   ============================================================================ */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: 9999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* ============================================================================
+   Tab Content
+   ============================================================================ */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.digital-id-tab {
+    display: none;
+}
+
+.digital-id-tab.show {
+    display: inline-flex;
+}
+
+/* ============================================================================
+   Verification Components
+   ============================================================================ */
+.gauge-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ibm-blue-60), var(--ibm-blue-50));
+    transition: width 0.5s ease;
+}
+
+.verified-badge {
+    background-color: #d0f0e4;
+    border: 1px solid #24a46d;
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+}
+
+.info-section {
+    background-color: #e5edff;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+}
+
+/* ============================================================================
+   Responsive Design
+   ============================================================================ */
+@media (max-width: 768px) {
+    .card {
+        padding: 1rem !important;
+    }
+    
+    .grid.md\:grid-cols-3 {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .grid.md\:grid-cols-2 {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .md\:col-span-2 {
+        grid-column: span 1 !important;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .pill {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.5rem;
+    }
+    
+    .btn-primary, .btn-secondary {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    h2 {
+        font-size: 1.25rem;
+    }
+}

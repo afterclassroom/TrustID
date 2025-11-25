@@ -1,0 +1,328 @@
+<style>
+    /* Page-specific styles for signup page */
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-overlay.active {
+        display: flex;
+    }
+    
+    .modal-content {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        animation: modalSlideIn 0.3s ease-out;
+    }
+    
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .status-message {
+        text-align: center;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .status-looking-up {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .status-sending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-waiting {
+        background-color: #e0e7ff;
+        color: #3730a3;
+    }
+    
+    .status-success {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .status-error {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+</style>
+
+<!-- Modal for Face Sign Up Process -->
+<div class="modal-overlay" id="faceSignUpModal">
+    <div class="modal-content">
+        <div class="text-center">
+            <div class="icon-container">
+                <i class="bi bi-person-badge"></i>
+            </div>
+            <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary);">Sign Up With Face</h2>
+            <p style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--text-secondary);" id="modalSubtitle">Setting up your facial recognition account</p>
+        </div>
+        
+        <div id="statusContainer">
+            <!-- Status messages will be inserted here -->
+        </div>
+        
+        <button class="btn-secondary" id="cancelButton" style="margin-top: 1rem; width: 100%;">Cancel</button>
+    </div>
+</div>
+
+<div class="card">
+    <!-- Logo & Title -->
+    <div class="text-center mb-8">
+        <div class="icon-container">
+            <i class="bi bi-person-plus"></i>
+        </div>
+        <h1>Create Account</h1>
+        <p class="subtitle">Sign up for VeriTrust with facial recognition</p>
+    </div>
+
+    <!-- Flash Messages -->
+    <% if flash[:alert] %>
+        <div class="alert alert-danger">
+            <%= flash[:alert] %>
+        </div>
+    <% end %>
+    
+    <% if flash[:notice] %>
+        <div class="alert alert-success">
+            <%= flash[:notice] %>
+        </div>
+    <% end %>
+
+    <!-- Signup Form -->
+    <form id="signupForm">
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+        
+        <!-- Name Input -->
+        <div class="mb-4">
+            <label for="full_name" class="field-label">
+                Full Name
+            </label>
+            <input 
+                type="text" 
+                id="full_name" 
+                name="full_name" 
+                class="input-field" 
+                placeholder="Enter your full name"
+                required
+            >
+        </div>
+
+        <!-- Email Input -->
+        <div class="mb-6">
+            <label for="email" class="field-label">
+                Email Address
+            </label>
+            <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                class="input-field" 
+                placeholder="Enter your email"
+                required
+            >
+        </div>
+
+        <!-- Sign Up with Face Button -->
+        <button type="submit" class="btn-primary mb-6" id="faceSignUpBtn">
+            <%= image_tag 'axiam/logo.png', alt: 'Axiam', style: 'width: 1.25rem; height: 1.25rem;' %>
+            <span id="btnText">Sign Up With Face</span>
+        </button>
+
+        <!-- Divider -->
+        <div class="divider text-center">
+            <span class="divider-text">OR</span>
+        </div>
+
+        <!-- Login Link -->
+        <div class="text-center mt-4">
+            <span style="color: var(--text-secondary);">Already have an account? </span>
+            <%= link_to "Login", new_user_session_path, class: "link-text" %>
+        </div>
+    </form>
+</div>
+
+<script>
+    console.log('🔄 Signup page script loaded');
+    
+    // Get form elements
+    const signupForm = document.getElementById('signupForm');
+    const faceSignUpBtn = document.getElementById('faceSignUpBtn');
+    const btnText = document.getElementById('btnText');
+    const fullNameInput = document.getElementById('full_name');
+    const emailInput = document.getElementById('email');
+    const modal = document.getElementById('faceSignUpModal');
+    const cancelButton = document.getElementById('cancelButton');
+    const statusContainer = document.getElementById('statusContainer');
+    const csrfToken = document.querySelector('[name="authenticity_token"]').value;
+    
+    console.log('Elements found:', {
+        signupForm: !!signupForm,
+        faceSignUpBtn: !!faceSignUpBtn,
+        fullNameInput: !!fullNameInput,
+        emailInput: !!emailInput,
+        csrfToken: !!csrfToken
+    });
+    
+    let cable = null;
+    let subscription = null;
+    
+    // Email validation function
+    function isValidEmail(email) {
+        const atIndex = email.indexOf('@');
+        return atIndex > 0 && atIndex < email.length - 1 && email.includes('.');
+    }
+    
+    // Show status message in modal
+    function showStatus(message, type = 'info') {
+        console.log(`📊 Status: ${message} (${type})`);
+        const statusClass = `status-${type}`;
+        statusContainer.innerHTML = `
+            <div class="status-message ${statusClass}">
+                ${type === 'loading' ? '<div class="spinner"></div>' : ''}
+                <p style="margin-top: ${type === 'loading' ? '0.5rem' : '0'};">${message}</p>
+            </div>
+        `;
+    }
+    
+    // Show modal
+    function showModal() {
+        console.log('📂 Opening modal');
+        modal.classList.add('active');
+    }
+    
+    // Hide modal
+    function hideModal() {
+        console.log('📁 Closing modal');
+        modal.classList.remove('active');
+        statusContainer.innerHTML = '';
+        
+        // Disconnect WebSocket
+        if (subscription) {
+            subscription.unsubscribe();
+            subscription = null;
+        }
+        if (cable) {
+            cable.disconnect();
+            cable = null;
+        }
+    }
+    
+    // Cancel button
+    cancelButton.addEventListener('click', function() {
+        console.log('❌ User cancelled signup');
+        hideModal();
+        faceSignUpBtn.disabled = false;
+        btnText.textContent = 'Sign Up With Face';
+    });
+    
+    // Handle form submission
+    signupForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        console.log('📝 Form submitted');
+        
+        const fullName = fullNameInput.value.trim();
+        const email = emailInput.value.trim();
+        
+        console.log('Form data:', { fullName, email });
+        
+        if (!fullName || !email) {
+            alert('Please fill in all fields');
+            return;
+        }
+        
+        if (!isValidEmail(email)) {
+            alert('Please enter a valid email address');
+            return;
+        }
+        
+        // Disable button and show loading state
+        faceSignUpBtn.disabled = true;
+        btnText.textContent = 'Processing...';
+        
+        try {
+            // Show modal
+            showModal();
+            showStatus('Creating your account...', 'loading');
+            
+            console.log('🌐 Calling /facial_signup/create API...');
+            
+            // Call the facial_signup create endpoint
+            const response = await fetch('<%= facial_signup_create_path %>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken
+                },
+                body: JSON.stringify({
+                    full_name: fullName,
+                    email: email
+                })
+            });
+            
+            console.log('Response status:', response.status);
+            const data = await response.json();
+            console.log('Response data:', data);
+            
+            if (data.success) {
+                console.log('✅ Account creation successful');
+                showStatus('Account created! Check your email to verify and complete setup.', 'success');
+                
+                // Redirect to pending page after 3 seconds
+                setTimeout(() => {
+                    window.location.href = '<%= facial_signup_pending_path %>';
+                }, 3000);
+            } else {
+                console.log('❌ Account creation failed:', data.error);
+                showStatus(data.error || 'Failed to create account. Please try again.', 'error');
+                faceSignUpBtn.disabled = false;
+                btnText.textContent = 'Sign Up With Face';
+                
+                setTimeout(() => {
+                    hideModal();
+                }, 3000);
+            }
+        } catch (error) {
+            console.error('💥 Error during signup:', error);
+            showStatus('An error occurred. Please try again.', 'error');
+            faceSignUpBtn.disabled = false;
+            btnText.textContent = 'Sign Up With Face';
+            
+            setTimeout(() => {
+                hideModal();
+            }, 3000);
+        }
+    });
+    
+    console.log('✅ Signup page ready');
+</script>

@@ -1,0 +1,399 @@
+<!-- Load external libraries -->
+<%= javascript_include_tag "https://cdn.jsdelivr.net/npm/@rails/actioncable@7.0.0/app/assets/javascripts/actioncable.js", "data-turbolinks-track": "reload" %>
+<%= javascript_include_tag "https://cdn.jsdelivr.net/npm/sweetalert2@11", "data-turbolinks-track": "reload" %>
+
+<style>
+    /* Page-specific styles for QR code page */
+    .card {
+        max-width: 40rem;
+        padding: 2.5rem 2rem;
+    }
+
+    .status-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 0.875rem 1.5rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin: 0 auto 1.5rem;
+        max-width: fit-content;
+    }
+
+    .status-indicator.waiting {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-indicator.processing {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-indicator.success {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-indicator.error {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 9999px;
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .status-indicator.waiting .status-dot {
+        background: #f59e0b;
+    }
+
+    .status-indicator.processing .status-dot {
+        background: #3b82f6;
+    }
+
+    .status-indicator.success .status-dot {
+        background: #10b981;
+    }
+
+    .status-indicator.error .status-dot {
+        background: #ef4444;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.5;
+        }
+    }
+
+    .qr-container {
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin: 0 auto 2rem;
+        max-width: 24rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .qr-code {
+        width: 100%;
+        max-width: 20rem;
+        height: auto;
+        border-radius: 0.5rem;
+    }
+
+    .instructions {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 0.75rem;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }
+
+    .instructions-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+        color: #166534;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .instructions ol {
+        margin-left: 1.25rem;
+        font-size: 0.875rem;
+        color: #15803d;
+        line-height: 1.6;
+    }
+
+    .instructions li {
+        margin-bottom: 0.5rem;
+    }
+
+    .websocket-status {
+        margin-top: 1.5rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        background: var(--bg-surface);
+        font-size: 0.75rem;
+        color: var(--text-tertiary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .websocket-status .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+
+    .websocket-status .badge.connected {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .websocket-status .badge.disconnected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .websocket-status .badge i {
+        font-size: 0.625rem;
+    }
+
+    @media (max-width: 640px) {
+        .card {
+            padding: 2rem 1.5rem;
+        }
+        
+        .qr-container {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="card">
+    <div class="icon-container">
+        <i class="bi bi-qr-code-scan"></i>
+    </div>
+
+    <h1>Almost there!</h1>
+    <p class="subtitle">Scan the QR code below with your Axiam app to complete signup</p>
+
+    <div id="status-indicator" class="status-indicator waiting">
+        <span class="status-dot"></span>
+        <span id="status-text">Waiting for QR scan...</span>
+    </div>
+
+    <% if @qrcode && @qrcode['data'] && @qrcode['data']['qrcode_base64'] %>
+        <div class="qr-container">
+            <img src="data:image/png;base64,<%= @qrcode['data']['qrcode_base64'] %>" 
+                 alt="Facial Signup QR Code" 
+                 class="qr-code">
+        </div>
+    <% else %>
+        <div class="qr-container">
+            <p class="error-message">Failed to generate QR code. Please try again.</p>
+        </div>
+    <% end %>
+
+    <div class="instructions">
+        <div class="instructions-title">
+            <span>📱</span>
+            <span>How to complete signup:</span>
+        </div>
+        <ol>
+            <li>Open the Axiam Authenticator app on your mobile device</li>
+            <li>Tap the QR scanner icon in the lower-right corner</li>
+            <li>Scan the QR code above</li>
+            <li>Follow the on-screen instructions to capture your face</li>
+            <li>Wait for confirmation — you'll be redirected automatically</li>
+        </ol>
+    </div>
+
+    <div class="websocket-status">
+        WebSocket: 
+        <span id="websocket-badge" class="badge disconnected">
+            <i class="bi bi-circle-fill"></i>
+            Connecting...
+        </span>
+    </div>
+
+    <%= link_to new_user_registration_path, class: 'back-link' do %>
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to signup form</span>
+    <% end %>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const clientId = '<%= @client_id %>';
+      const siteId = '<%= @site_id %>';
+      
+      if (!clientId || clientId === '') {
+        updateStatus('error', 'Session error. Please start over.');
+        return;
+      }
+      
+      // Initialize ActionCable connection
+      if (typeof window.App === 'undefined') {
+        window.App = {};
+      }
+      
+      if (!App.cable) {
+        // Determine Axiam WebSocket URL based on environment
+        let axiamWebSocketUrl;
+        const hostname = window.location.hostname;
+        
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+          axiamWebSocketUrl = 'ws://localhost:3000/cable';  // Development
+        } else if (hostname === 'webclientstaging.axiam.io') {
+          axiamWebSocketUrl = 'wss://staging.axiam.io/cable';  // Staging
+        } else if (hostname === 'webclient.axiam.io' || hostname === 'teranet.axiam.io') {
+          axiamWebSocketUrl = 'wss://axiam.io/cable';  // Production
+        } else {
+          axiamWebSocketUrl = 'wss://staging.axiam.io/cable';  // Default to staging
+        }
+        
+        App.cable = ActionCable.createConsumer(axiamWebSocketUrl);
+      }
+      
+      // Subscribe to FacialSignOnDeviceChannel for signup events
+      const subscription = App.cable.subscriptions.create(
+        {
+          channel: "FacialSignOnDeviceChannel",
+          client_id: clientId
+        },
+        {
+          connected() {
+            updateWebSocketStatus(true);
+          },
+          
+          disconnected() {
+          },
+          
+          received(data) {
+            handleSignupEvent(data);
+          },
+          
+          rejected() {
+            updateWebSocketStatus(false);
+          }
+        }
+      );
+      
+      // Handle signup events
+      function handleSignupEvent(data) {
+        // Check if this is a signup flow (flow_type='signup' or action='signup' for backward compatibility)
+        const isSignupFlow = data.flow_type === 'signup' || data.action === 'signup' || data.flow_type === '' || data.action === '' || (!data.flow_type && !data.action);
+        
+        if (isSignupFlow) {
+          
+          // Event 1: Device registered
+          if (data.registered === true) {
+            updateStatus('processing', 'Device connected! Please capture your face on mobile.');
+            
+            Swal.fire({
+              icon: 'info',
+              title: 'Device Connected!',
+              text: 'Please follow the instructions on your mobile to capture your facial image.',
+              timer: 4000,
+              showConfirmButton: false
+            });
+          }
+          
+          // Event 2: Facial uploaded
+          if (data.status === 'uploaded') {
+            updateStatus('success', 'Facial received! Creating your account...');
+            
+            // Complete signup process
+            completeSignup(data);
+          }
+        }
+      }
+      
+      // Complete signup and redirect
+      function completeSignup(data) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Signup Complete!',
+          html: '<div style="text-align: left;"><p>Your account has been created successfully!</p><p class="text-muted">You can now sign in using your face—no password needed!</p></div>',
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        
+        // Call backend to complete signup (create User record)
+        fetch('<%= facial_signup_complete_path %>', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+          },
+          body: JSON.stringify({
+            client_id: data.client_id,
+            facial_url: data.facial_url  // Send facial_url to download and attach to User
+          })
+        })
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            // Show success and redirect
+            Swal.fire({
+              icon: 'success',
+              title: 'Signup Complete!',
+              html: '<div style="text-align: left;"><p>Your account has been created successfully!</p><p class="text-muted">You can now sign in using your face—no password needed!</p></div>',
+              showConfirmButton: true,
+              confirmButtonText: 'Go to Login',
+              confirmButtonColor: '#0f766e',
+              allowOutsideClick: false
+            }).then((swalResult) => {
+              if (swalResult.isConfirmed) {
+                window.location.href = result.redirect_url || '<%= new_user_session_path %>';
+              }
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Signup Failed',
+              text: result.message || 'Failed to complete signup. Please try again.',
+              confirmButtonText: 'OK'
+            });
+          }
+        })
+        .catch(error => {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while completing signup.',
+            confirmButtonText: 'OK'
+          });
+        });
+      }
+      
+      // Update status indicator
+      function updateStatus(type, message) {
+        const indicator = document.getElementById('status-indicator');
+        const text = document.getElementById('status-text');
+        
+        // Remove all type classes
+        indicator.className = 'status-indicator';
+        
+        // Add new type class
+        indicator.classList.add(type);
+        
+        // Update text
+        text.textContent = message;
+      }
+      
+      // Update WebSocket status badge
+      function updateWebSocketStatus(connected) {
+        const badge = document.getElementById('websocket-badge');
+        if (badge) {
+          badge.className = connected ? 'badge connected' : 'badge disconnected';
+          badge.innerHTML = connected 
+            ? '<i class="bi bi-circle-fill"></i> Connected' 
+            : '<i class="bi bi-circle-fill"></i> Disconnected';
+        }
+      }
+    });
+  </script>

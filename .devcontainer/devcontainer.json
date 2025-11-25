@@ -1,0 +1,26 @@
+{
+  "name": "Rails Client",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "web",
+  "workspaceFolder": "/var/www",
+  
+  // Extensions to install in container
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "rebornix.ruby",
+        "castwide.solargraph",
+        "kaiwood.endwise",
+        "misogi.ruby-rubocop"
+      ]
+    }
+  },
+  
+  // Don't run postCreateCommand since docker-compose already handles bundle install
+  // "postCreateCommand": "bundle install",
+  
+  // Keep terminal history
+  "remoteUser": "root"
+}

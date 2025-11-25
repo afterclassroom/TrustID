@@ -1,0 +1,354 @@
+<!-- Main Content -->
+<main>
+    <!-- Verify Tab -->
+    <div id="verify-tab" class="tab-content active">
+        <section class="w-full max-w-5xl mx-auto p-6">
+            <div class="flex items-center justify-between gap-4 mb-4">
+                <div>
+                    <h2 class="text-2xl font-semibold tracking-tight">Verify online content</h2>
+                    <p class="text-sm mt-1" style="color: var(--text-secondary)">Check if a piece of content was likely AI-generated and see provenance & ownership signals.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="pill">Beta</span>
+                    <span class="pill">Client-side demo</span>
+                </div>
+            </div>
+            <div class="card p-6">
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="md:col-span-2 space-y-4">
+                        <div class="flex gap-2">
+                            <button class="mode-btn btn-primary active" data-mode="text">Paste Text</button>
+                            <button class="mode-btn btn-secondary" data-mode="url">URL</button>
+                            <button class="mode-btn btn-secondary" data-mode="file">Upload File</button>
+                        </div>
+
+                        <!-- Text Mode -->
+                        <div id="text-mode" class="verify-mode">
+                            <label class="block w-full">
+                                <div class="text-sm mb-1" style="color: var(--text-secondary)">Text</div>
+                                <textarea id="verify-text" class="input-field" rows="10" placeholder="Paste the text snippet here..."></textarea>
+                                <div class="text-xs mt-1" style="color: var(--text-secondary)">Pro tip: include any content-credential markers or signatures if present.</div>
+                            </label>
+                        </div>
+
+                        <!-- URL Mode -->
+                        <div id="url-mode" class="verify-mode" style="display: none;">
+                            <label class="block w-full">
+                                <div class="text-sm mb-1" style="color: var(--text-secondary)">Public URL</div>
+                                <input id="verify-url" type="url" class="input-field" placeholder="https://example.com/article">
+                                <div class="text-xs mt-1" style="color: var(--text-secondary)">We will check metadata hints and known publisher signals.</div>
+                            </label>
+                        </div>
+
+                        <!-- File Mode -->
+                        <div id="file-mode" class="verify-mode" style="display: none;">
+                            <label class="block w-full">
+                                <div class="text-sm mb-1" style="color: var(--text-secondary)">Select file</div>
+                                <input id="verify-file" type="file" class="input-field" accept="text/plain,application/pdf,image/*,audio/*,video/*">
+                                <div class="text-xs mt-1" style="color: var(--text-secondary)">Videos, music, images, PDFs, and text supported (demo extracts metadata only).</div>
+                            </label>
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-2">
+                            <button id="run-verify" class="btn-primary">Run Verification</button>
+                            <span id="file-info" class="pill" style="display: none;"></span>
+                        </div>
+
+                        <div id="verify-error" class="text-sm text-red-400" style="display: none;"></div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="card p-4">
+                            <div class="text-sm font-medium mb-2">How it works</div>
+                            <ul class="text-sm list-disc ml-5 space-y-1" style="color: var(--text-secondary)">
+                                <li>Combine watermark detectors, content credentials (C2PA), and model forensic signals.</li>
+                                <li>Ownership via signed attestations (passkeys), device-bound keys, or platform proofs.</li>
+                                <li>Zero-retention demo: analysis runs in-browser.</li>
+                            </ul>
+                        </div>
+                        <div id="verify-results-container">
+                            <div class="card p-4">
+                                <div class="text-sm" style="color: var(--text-secondary)">Results will appear here after verification.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture Section -->
+        <section class="w-full max-w-5xl mx-auto p-6">
+            <div class="mb-4">
+                <h2 class="text-2xl font-semibold tracking-tight">Reference architecture</h2>
+                <p class="text-sm mt-1" style="color: var(--text-secondary)">Pluggable signals, identity attestations, zero-retention by default.</p>
+            </div>
+            <div class="card p-6">
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="card p-4">
+                        <div class="font-medium">1) Provenance</div>
+                        <ul class="text-sm list-disc ml-5 mt-2 space-y-1" style="color: var(--text-secondary)">
+                            <li>C2PA / Content Credentials extraction</li>
+                            <li>Platform-issued attestations (creator handles, device keys)</li>
+                            <li>Signature verification & chain of custody</li>
+                        </ul>
+                    </div>
+                    <div class="card p-4">
+                        <div class="font-medium">2) AI-ness</div>
+                        <ul class="text-sm list-disc ml-5 mt-2 space-y-1" style="color: var(--text-secondary)">
+                            <li>Watermark detectors (vendor-specific, open)</li>
+                            <li>Model forensics (stylometry, spectral, edit distance)</li>
+                            <li>Cross-modal heuristics (audio/video/text)</li>
+                        </ul>
+                    </div>
+                    <div class="card p-4">
+                        <div class="font-medium">3) Ownership</div>
+                        <ul class="text-sm list-disc ml-5 mt-2 space-y-1" style="color: var(--text-secondary)">
+                            <li>Passkey-backed signing for creators</li>
+                            <li>Axiam face sign-in as identity oracle</li>
+                            <li>Dispute workflows & human review</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Digital ID Tab -->
+    <div id="identity-tab" class="tab-content">
+        <section class="w-full max-w-5xl mx-auto p-6">
+            <div class="mb-4">
+                <h2 class="text-2xl font-semibold tracking-tight">Digital ID</h2>
+                <p class="text-sm mt-1" style="color: var(--text-secondary)">Create a DID, verify identity with Axiam Face Sign-In, and sign your content.</p>
+            </div>
+            <div class="card p-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <!-- Handle -->
+                        <div class="card p-4 flex items-center justify-between">
+                            <div>
+                                <div class="text-sm" style="color: var(--text-secondary)">Handle</div>
+                                <div class="text-lg font-semibold" id="user-handle">@your.handle</div>
+                            </div>
+                            <button id="edit-handle" class="btn-primary">Edit</button>
+                        </div>
+
+                        <!-- Axiam Face Sign-In -->
+                        <div class="card p-4 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="font-medium">Axiam Face Sign-In</div>
+                                <span id="axiam-badge" class="text-xs px-2 py-1 rounded-full border" style="color: #8d8d8d; border-color: #8d8d8d;">Not signed in</span>
+                            </div>
+                            <div id="axiam-container" class="rounded-lg border border-dashed p-4" style="border-color: #525252;">
+                                <div style="color: var(--text-secondary)">Axiam widget mounts here. Using mocked flow for demo.</div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button id="start-axiam" class="btn-primary">Start Face Sign-In</button>
+                            </div>
+                        </div>
+
+                        <!-- DID -->
+                        <div class="card p-4 space-y-2">
+                            <div class="text-sm" style="color: var(--text-secondary)">DID</div>
+                            <div id="did-display" class="font-mono break-all text-sm">— (none yet)</div>
+                            <div class="flex gap-2">
+                                <button id="create-did" class="btn-primary">Create DID</button>
+                                <button id="copy-did" class="btn-secondary" style="display: none;">Copy DID</button>
+                            </div>
+                        </div>
+
+                        <!-- Public Key -->
+                        <div class="card p-4 space-y-2">
+                            <div class="text-sm" style="color: var(--text-secondary)">Public Key (JWK)</div>
+                            <pre id="pub-key-display" class="text-xs rounded-lg p-2 overflow-auto max-h-48" style="background: var(--bg-surface); color: #525252;">—</pre>
+                            <button id="copy-pubkey" class="btn-secondary" style="display: none;">Copy Public Key</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Signature Tag -->
+                        <div class="card p-4">
+                            <div class="text-sm mb-2" style="color: var(--text-secondary)">Generate a signature tag bound to your DID (and Axiam subject if verified).</div>
+                            <div class="flex items-center gap-2">
+                                <button id="gen-signature" class="btn-primary">Generate Signature Tag</button>
+                                <button id="copy-signature" class="btn-secondary" style="display: none;">Copy Tag</button>
+                            </div>
+                            <div id="signature-tag-display" class="mt-3 text-sm" style="color: var(--ibm-blue-30); display: none;">
+                                Use this tag in your content: <span id="signature-tag" class="font-mono" style="color: var(--ibm-blue-60);"></span>
+                            </div>
+                        </div>
+                        <div id="identity-status" class="text-sm" style="color: var(--text-secondary); display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- About Us Tab -->
+    <div id="about-tab" class="tab-content">
+        <section class="w-full max-w-5xl mx-auto p-6">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold tracking-tight">About VeriTrust</h2>
+                <p class="text-lg mt-3" style="color: var(--text-secondary)">Building trust in the digital age through verifiable content and identity.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-3">Our Mission</h3>
+                    <p style="color: var(--text-secondary)">
+                        To provide cutting-edge tools that enable individuals and organizations to verify the authenticity of digital content, 
+                        protect intellectual property, and establish trusted digital identities in an era of AI-generated media.
+                    </p>
+                </div>
+
+                <div class="card p-6">
+                    <h3 class="text-xl font-semibold mb-3">Our Vision</h3>
+                    <p style="color: var(--text-secondary)">
+                        A world where digital content can be trusted, creators are properly attributed, and identity verification 
+                        is seamless, secure, and privacy-preserving for everyone.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card p-6 mb-8">
+                <h3 class="text-2xl font-semibold mb-4">Core Principles</h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="text-center p-4">
+                        <div class="text-3xl mb-2">🔒</div>
+                        <h4 class="font-semibold mb-2">Privacy First</h4>
+                        <p class="text-sm" style="color: var(--text-secondary)">
+                            Zero-retention by default. Your data stays in your browser.
+                        </p>
+                    </div>
+                    <div class="text-center p-4">
+                        <div class="text-3xl mb-2">🔓</div>
+                        <h4 class="font-semibold mb-2">Open Standards</h4>
+                        <p class="text-sm" style="color: var(--text-secondary)">
+                            Built on W3C DIDs, C2PA, and open cryptographic protocols.
+                        </p>
+                    </div>
+                    <div class="text-center p-4">
+                        <div class="text-3xl mb-2">⚡</div>
+                        <h4 class="font-semibold mb-2">User Empowerment</h4>
+                        <p class="text-sm" style="color: var(--text-secondary)">
+                            You control your identity and content verification.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-6 mb-8">
+                <h3 class="text-2xl font-semibold mb-4">Technology Stack</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-semibold mb-2" style="color: var(--ibm-blue-60)">Security & Cryptography</h4>
+                        <ul class="text-sm space-y-1" style="color: var(--text-secondary)">
+                            <li>• WebCrypto API (ECDSA P-256)</li>
+                            <li>• SHA-256 fingerprinting</li>
+                            <li>• JWK (JSON Web Keys)</li>
+                            <li>• Client-side key generation</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-2" style="color: var(--ibm-blue-60)">Identity & Standards</h4>
+                        <ul class="text-sm space-y-1" style="color: var(--text-secondary)">
+                            <li>• W3C Decentralized Identifiers (DIDs)</li>
+                            <li>• C2PA Content Credentials</li>
+                            <li>• Passkey integration</li>
+                            <li>• Biometric authentication (Axiam)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-2" style="color: var(--ibm-blue-60)">AI Detection</h4>
+                        <ul class="text-sm space-y-1" style="color: var(--text-secondary)">
+                            <li>• Watermark detection algorithms</li>
+                            <li>• Model forensic analysis</li>
+                            <li>• Metadata extraction</li>
+                            <li>• Multi-modal verification</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-2" style="color: var(--ibm-blue-60)">Privacy & Storage</h4>
+                        <ul class="text-sm space-y-1" style="color: var(--text-secondary)">
+                            <li>• Browser LocalStorage</li>
+                            <li>• Zero server retention</li>
+                            <li>• Client-side processing</li>
+                            <li>• Encrypted key storage</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Education Tab -->
+    <div id="Education-tab" class="tab-content">
+        <section class="w-full max-w-5xl mx-auto p-6">
+            <div class="mb-4">
+                <h2 class="text-2xl font-semibold tracking-tight">Education</h2>
+                <p class="text-sm mt-1" style="color: var(--text-secondary)">Research, whitepapers, and technical notes.</p>
+            </div>
+            <div class="card p-6">
+                <div id="Education-list" class="text-sm" style="color: var(--text-secondary)">Loading…</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Contact Tab -->
+    <div id="contact-tab" class="tab-content">
+        <section class="w-full max-w-5xl mx-auto p-6">
+            <div class="mb-4">
+                <h2 class="text-2xl font-semibold tracking-tight">Ask VeriTrust</h2>
+                <p class="text-sm mt-1" style="color: var(--text-secondary)">We'd love to hear from you.</p>
+            </div>
+            <div class="card p-6">
+                <form id="contact-form" class="grid md:grid-cols-2 gap-4">
+                    <label class="block">
+                        <div class="text-sm mb-1" style="color: var(--text-secondary)">Name</div>
+                        <input id="contact-name" type="text" class="input-field" placeholder="Ada Lovelace">
+                    </label>
+                    <label class="block">
+                        <div class="text-sm mb-1" style="color: var(--text-secondary)">Email</div>
+                        <input id="contact-email" type="email" class="input-field" placeholder="ada@example.com">
+                    </label>
+                    <label class="block md:col-span-2">
+                        <div class="text-sm mb-1" style="color: var(--text-secondary)">Message</div>
+                        <textarea id="contact-message" class="input-field" rows="6" placeholder="Tell us about your use-case or question…"></textarea>
+                    </label>
+                    <div class="md:col-span-2 flex items-center gap-2">
+                        <button type="submit" class="btn-primary" id="contact-submit">Send message</button>
+                        <span id="contact-success" class="text-sm" style="color: #24a46d; display: none;">Thanks! We'll get back to you soon.</span>
+                        <span id="contact-error" class="text-sm" style="color: #da1e28; display: none;"></span>
+                    </div>
+                </form>
+                <div class="mt-6 grid md:grid-cols-3 gap-4 text-sm">
+                    <div class="card p-4">
+                        <div class="text-xs uppercase tracking-wide" style="color: var(--text-secondary)">Email</div>
+                        <div class="text-lg font-semibold mt-1 break-all">hello@veritrust.example</div>
+                    </div>
+                    <div class="card p-4">
+                        <div class="text-xs uppercase tracking-wide" style="color: var(--text-secondary)">Security</div>
+                        <div class="text-lg font-semibold mt-1 break-all">security@veritrust.example</div>
+                    </div>
+                    <div class="card p-4">
+                        <div class="text-xs uppercase tracking-wide" style="color: var(--text-secondary)">Support</div>
+                        <div class="text-lg font-semibold mt-1 break-all">24/7 Available</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<!-- 
+  VeriTrust Home Page JavaScript
+  Loaded from: app/assets/javascripts/home_verification.js
+  Requires: veritrust.js (utilities), jQuery, Tailwind CSS
+-->
+<% if user_signed_in? %>
+<script>
+// Show Digital ID tab for logged-in users
+$(document).ready(function() {
+    $('.digital-id-tab').addClass('show');
+});
+</script>
+<% end %>

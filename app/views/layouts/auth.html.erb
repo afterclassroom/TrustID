@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>VeriTrust - Authentication</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "auth_pages", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <!-- jQuery for VeriTrust -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Store public credentials only (NO REDIS PASSWORD) -->
+    <script>
+      <% if axiam_credentials_js %>
+        window.SITE_CREDENTIALS = <%= axiam_credentials_js.to_json.html_safe %>;
+        // Only public info: channel_prefix and server_url
+      <% else %>
+        console.error('❌ Axiam credentials not configured properly');
+        window.SITE_CREDENTIALS = null;
+      <% end %>
+    </script>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

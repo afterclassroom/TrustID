@@ -1,0 +1,32 @@
+// app/assets/stylesheets/application.scss
+
+// Bootstrap (load first for base styles)
+@import "bootstrap";
+
+// VeriTrust styles (custom components)
+@import "veritrust";
+
+// Tailwind CSS utilities only (no base reset)
+@import "application.tailwind.css";
+
+// You can add custom styles below
+body {
+  background-color: #f8f9fa;
+}
+
+.container-custom {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+  padding: 2rem 2.5rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.footer {
+  background: #222;
+  color: #fff;
+  padding: 1.5rem 0;
+  text-align: center;
+  margin-top: 2rem;
+}

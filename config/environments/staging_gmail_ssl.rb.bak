@@ -1,0 +1,16 @@
+# Alternative Gmail SMTP config with SSL port 465
+# If port 587 is blocked, try this configuration
+
+config.action_mailer.delivery_method = :smtp
+config.action_mailer.smtp_settings = {
+  address: 'smtp.gmail.com',
+  port: 465,
+  domain: 'gmail.com',
+  user_name: ENV['GMAIL_SMTP_USERNAME'],
+  password: ENV['GMAIL_SMTP_PASSWORD'],
+  authentication: :plain,
+  ssl: true,
+  tls: true,
+  open_timeout: 10,
+  read_timeout: 10
+}

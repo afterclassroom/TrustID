@@ -1,0 +1,71 @@
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="mb-4 text-center">Sign In with Face</h2>
+        
+        <!-- Axiam Widget Container -->
+        <div id="axiam-facial-login"></div>
+        
+        <div class="mt-3 text-center">
+          <a href="<%= new_user_session_path %>" class="btn btn-outline-secondary">Back to Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Load Axiam Widget -->
+<% 
+  # Get Axiam base URL - use public URL for browser access
+  if Rails.env.development?
+    axiam_base = ENV.fetch('AXIAM_WIDGET_URL', 'http://localhost:3000')
+  elsif Rails.env.staging?
+    axiam_base = 'https://staging.axiam.io'
+  else
+    axiam_base = 'https://axiam.io'
+  end
+%>
+
+<script src="<%= axiam_base %>/widget/facial-login.js?v=2.1.0&t=<%= Time.now.to_i %>"></script>
+<link rel="stylesheet" href="<%= axiam_base %>/widget/facial-login.css?t=<%= Time.now.to_i %>">
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 🔒 SECURITY: authToken obtained from server-side (NEVER use secret_key in browser)
+  const authToken = '<%= @axiam_auth_token %>';
+  const publicKey = '<%= ENV.fetch("AXIAM_API_KEY", "") %>';
+  
+  if (!authToken || authToken === '') {
+    alert('Failed to initialize facial login. Please refresh the page.');
+    return;
+  }
+  
+  if (!publicKey || publicKey === '') {
+    alert('Failed to initialize facial login. Please refresh the page.');
+    return;
+  }
+  
+  // Initialize Axiam Widget with JWT token + public key (v2.0 - Secure authentication)
+  // Widget handles all UI messages (pending, verified, error) internally
+  AxiamFacialLogin.init({
+    // 🔒 REQUIRED: Public key (API key) - safe to expose in browser
+    publicKey: publicKey,
+    
+    // 🔒 REQUIRED: JWT token from server-side authentication
+    authToken: authToken,
+    
+    // Backend endpoint - widget will submit here AFTER verification
+    formAction: '<%= verified_login_facial_sign_on_index_path %>',
+    
+    // Security: Require verification before form submission
+    requireVerification: true,
+    autoSubmit: true,  // Auto submit after verification
+    
+    // UI settings
+    container: '#axiam-facial-login',
+    buttonText: 'Login with Face',
+    language: 'en'
+  });
+});
+</script>
