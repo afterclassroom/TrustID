@@ -173,8 +173,6 @@
 </div>
 
 <script>
-    console.log('🔄 Signup page script loaded');
-    
     // Get form elements
     const signupForm = document.getElementById('signupForm');
     const faceSignUpBtn = document.getElementById('faceSignUpBtn');
@@ -185,14 +183,6 @@
     const cancelButton = document.getElementById('cancelButton');
     const statusContainer = document.getElementById('statusContainer');
     const csrfToken = document.querySelector('[name="authenticity_token"]').value;
-    
-    console.log('Elements found:', {
-        signupForm: !!signupForm,
-        faceSignUpBtn: !!faceSignUpBtn,
-        fullNameInput: !!fullNameInput,
-        emailInput: !!emailInput,
-        csrfToken: !!csrfToken
-    });
     
     let cable = null;
     let subscription = null;
@@ -205,7 +195,6 @@
     
     // Show status message in modal
     function showStatus(message, type = 'info') {
-        console.log(`📊 Status: ${message} (${type})`);
         const statusClass = `status-${type}`;
         statusContainer.innerHTML = `
             <div class="status-message ${statusClass}">
@@ -217,13 +206,11 @@
     
     // Show modal
     function showModal() {
-        console.log('📂 Opening modal');
         modal.classList.add('active');
     }
     
     // Hide modal
     function hideModal() {
-        console.log('📁 Closing modal');
         modal.classList.remove('active');
         statusContainer.innerHTML = '';
         
@@ -240,7 +227,6 @@
     
     // Cancel button
     cancelButton.addEventListener('click', function() {
-        console.log('❌ User cancelled signup');
         hideModal();
         faceSignUpBtn.disabled = false;
         btnText.textContent = 'Sign Up With Face';
@@ -249,12 +235,9 @@
     // Handle form submission
     signupForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        console.log('📝 Form submitted');
         
         const fullName = fullNameInput.value.trim();
         const email = emailInput.value.trim();
-        
-        console.log('Form data:', { fullName, email });
         
         if (!fullName || !email) {
             alert('Please fill in all fields');
@@ -275,8 +258,6 @@
             showModal();
             showStatus('Creating your account...', 'loading');
             
-            console.log('🌐 Calling /facial_signup/create API...');
-            
             // Call the facial_signup create endpoint
             const response = await fetch('<%= facial_signup_create_path %>', {
                 method: 'POST',
@@ -290,12 +271,9 @@
                 })
             });
             
-            console.log('Response status:', response.status);
             const data = await response.json();
-            console.log('Response data:', data);
             
             if (data.success) {
-                console.log('✅ Account creation successful');
                 showStatus('Account created! Check your email to verify and complete setup.', 'success');
                 
                 // Redirect to pending page after 3 seconds
@@ -303,7 +281,6 @@
                     window.location.href = '<%= facial_signup_pending_path %>';
                 }, 3000);
             } else {
-                console.log('❌ Account creation failed:', data.error);
                 showStatus(data.error || 'Failed to create account. Please try again.', 'error');
                 faceSignUpBtn.disabled = false;
                 btnText.textContent = 'Sign Up With Face';
@@ -313,7 +290,6 @@
                 }, 3000);
             }
         } catch (error) {
-            console.error('💥 Error during signup:', error);
             showStatus('An error occurred. Please try again.', 'error');
             faceSignUpBtn.disabled = false;
             btnText.textContent = 'Sign Up With Face';
@@ -323,6 +299,4 @@
             }, 3000);
         }
     });
-    
-    console.log('✅ Signup page ready');
 </script>

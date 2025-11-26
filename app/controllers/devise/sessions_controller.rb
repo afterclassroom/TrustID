@@ -77,11 +77,8 @@ class Devise::SessionsController < DeviseController
     cached_token = Rails.cache.read(cache_key)
     
     if cached_token.present?
-      Rails.logger.info "[Devise Sessions] Using cached Axiam auth token"
       return cached_token
     end
-    
-    Rails.logger.info "[Devise Sessions] Fetching new Axiam auth token from server"
     
     # Call Axiam authentication API
     auth_url = ENV.fetch('AXIAM_AUTH_URL', 'https://axiam.io/api/v1/facial_sign_on/application_auth')

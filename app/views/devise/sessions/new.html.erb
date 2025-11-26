@@ -70,8 +70,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@rails/actioncable@7.0.0/app/assets/javascripts/actioncable.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔄 Login page script loaded');
-    
     const emailInput = document.getElementById('email-input');
     const faceLoginBtn = document.getElementById('face-login-btn');
     const btnText = document.getElementById('btn-text');
@@ -79,13 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const errorContainer = document.getElementById('error-container');
     const loadingContainer = document.getElementById('loading-container');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-    
-    console.log('Elements found:', {
-        emailInput: !!emailInput,
-        faceLoginBtn: !!faceLoginBtn,
-        btnText: !!btnText,
-        csrfToken: !!csrfToken
-    });
     
     let cable = null;
     let subscription = null;
@@ -125,8 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Enable/disable button based on email input
     if (emailInput && faceLoginBtn) {
-        console.log('👂 Setting up email input listener');
-        
         // Simple email validation function
         function isValidEmail(email) {
             // Check if email has @ and at least one character before and after @
@@ -136,28 +125,20 @@ document.addEventListener('DOMContentLoaded', function() {
         
         emailInput.addEventListener('input', function() {
             const email = this.value.trim();
-            console.log('📧 Email input:', email);
             if (email && isValidEmail(email)) {
-                console.log('✅ Email valid, enabling button');
                 faceLoginBtn.disabled = false;
             } else {
-                console.log('❌ Email invalid, disabling button');
                 faceLoginBtn.disabled = true;
             }
         });
         
         // Initial state - check if email already has value
         const initialEmail = emailInput.value.trim();
-        console.log('🔍 Initial email value:', initialEmail);
         if (initialEmail && isValidEmail(initialEmail)) {
-            console.log('✅ Initial email valid, enabling button');
             faceLoginBtn.disabled = false;
         } else {
-            console.log('❌ No valid initial email, disabling button');
             faceLoginBtn.disabled = true;
         }
-    } else {
-        console.error('❌ Elements not found:', { emailInput: !!emailInput, faceLoginBtn: !!faceLoginBtn });
     }
     
     // Handle Face Login button click
@@ -277,16 +258,14 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             {
                 connected: function() {
-                    console.log('✅ Connected to ActionCable');
                     showStatus('Connected. Waiting for face scan...');
                 },
                 
                 disconnected: function() {
-                    console.log('❌ Disconnected from ActionCable');
+                    // Connection lost
                 },
                 
                 received: function(data) {
-                    console.log('📨 Received data:', data);
                     handleLoginUpdate(data, email);
                 }
             }
@@ -296,8 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle login updates from ActionCable
     async function handleLoginUpdate(data, email) {
         if (data.status === 'verified') {
-            // ✅ Login successful!
-            console.log('Login verified:', data);
+            // Login successful!
             btnText.textContent = 'Login successful!';
             showStatus('Login verified! Creating session...');
             
@@ -305,8 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
             await createUserSession(data.client_id, email);
             
         } else if (data.status === 'failed') {
-            // ❌ Login failed
-            console.error('Login failed:', data.error);
+            // Login failed
             showError(data.error || 'Facial authentication failed. Please try again.');
             btnText.textContent = 'Sign In With Face';
             faceLoginBtn.disabled = false;

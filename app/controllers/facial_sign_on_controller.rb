@@ -30,11 +30,8 @@ class FacialSignOnController < ApplicationController
     cached_token = Rails.cache.read(cache_key)
     
     if cached_token.present?
-      Rails.logger.info "[Facial Sign-On] Using cached Axiam auth token"
       return cached_token
     end
-    
-    Rails.logger.info "[Facial Sign-On] Fetching new Axiam auth token from server"
     
     # Call Axiam authentication API
     auth_url = ENV.fetch('AXIAM_AUTH_URL', 'https://axiam.io/api/v1/facial_sign_on/application_auth')
@@ -68,7 +65,6 @@ class FacialSignOnController < ApplicationController
       cache_duration = [expires_in - 300, 3300].min  # Cache for (expires_in - 5 minutes) or 55 minutes
       Rails.cache.write(cache_key, token, expires_in: cache_duration.seconds)
       
-      Rails.logger.info "[Facial Sign-On] ✅ Axiam auth token obtained and cached for #{cache_duration} seconds"
       return token
     end
     

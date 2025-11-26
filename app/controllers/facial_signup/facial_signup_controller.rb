@@ -44,7 +44,6 @@ class FacialSignup::FacialSignupController < ApplicationController
               full_name: full_name,
               verification_url: verification_url
             ).deliver_now
-            Rails.logger.info "[FacialSignup] Verification email sent successfully"
           rescue Net::OpenTimeout, Net::ReadTimeout => e
             Rails.logger.error "[FacialSignup] SMTP timeout: #{e.message}"
             render json: { success: false, error: "Email service is temporarily unavailable. Please contact support." }, status: :service_unavailable
@@ -54,8 +53,6 @@ class FacialSignup::FacialSignupController < ApplicationController
             render json: { success: false, error: "Failed to send verification email. Please try again." }, status: :internal_server_error
             return
           end
-        else
-          Rails.logger.info "[FacialSignup] Email sending skipped (development). Verification URL: #{verification_url}"
         end
         
         # Return success response

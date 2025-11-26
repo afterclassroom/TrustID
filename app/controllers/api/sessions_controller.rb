@@ -55,14 +55,10 @@ module Api
         # Update axiam_uid if not set
         if user.axiam_uid.blank?
           user.update!(axiam_uid: client_id)
-          Rails.logger.info "[SessionsController] Updated user #{user.id} with axiam_uid: #{client_id}"
         end
         
         # Sign in user using Devise
         sign_in(:user, user)
-        
-        # Log successful login
-        Rails.logger.info "[SessionsController] User logged in via facial sign-on: #{email}"
         
         render json: {
           success: true,
