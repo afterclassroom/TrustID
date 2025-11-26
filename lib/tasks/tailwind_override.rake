@@ -5,7 +5,7 @@
 namespace :tailwindcss do
   # Override build task to use pre-processed file
   task :build do
-    puts "⚠️  Using pre-built Tailwind CSS (skipping build to avoid SassC compatibility issues)"
+    puts "⚠️  Fixing Tailwind CSS v4 syntax for SassC compatibility..."
     
     # Fix modern CSS syntax to be compatible with SassC
     tailwind_file = Rails.root.join("app/assets/builds/tailwind.css")
@@ -18,14 +18,9 @@ namespace :tailwindcss do
       content.gsub!(/\(height >= ([^)]+)\)/, '(min-height: \1)')
       content.gsub!(/\(height <= ([^)]+)\)/, '(max-height: \1)')
       
-      # Remove modern CSS color syntax that's incompatible with SassC
-      # Replace rgb(from ...) with fallback
-      content.gsub!(/rgb\(from [^)]+\)/, 'rgb(0, 0, 0)')
-      content.gsub!(/color:\s*rgb\(from [^)]+\)/, 'color: inherit')
-      
-      # Remove CSS feature detection queries that cause SassC errors
-      content.gsub!(/\(color:\s*rgb\([^)]*\)\)/, '(color: #000)')
-      content.gsub!(/\(-moz-orient:\s*inline\)\s*and\s*\(not\s*\([^)]*rgb\([^)]*\)[^)]*\)\)/, '(-moz-orient: inline)')
+      # Fix CSS color functions - ONLY fix the specific syntax error
+      # Replace only the problematic parts in @supports queries
+      content.gsub!(/\(not \(color:\s*rgb\(from [^)]+\)\)\)/, '(color: inherit)')
       
       File.write(tailwind_file, content)
       puts "✅ Fixed Tailwind CSS syntax for SassC compatibility"
