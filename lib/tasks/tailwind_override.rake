@@ -18,6 +18,15 @@ namespace :tailwindcss do
       content.gsub!(/\(height >= ([^)]+)\)/, '(min-height: \1)')
       content.gsub!(/\(height <= ([^)]+)\)/, '(max-height: \1)')
       
+      # Remove modern CSS color syntax that's incompatible with SassC
+      # Replace rgb(from ...) with fallback
+      content.gsub!(/rgb\(from [^)]+\)/, 'rgb(0, 0, 0)')
+      content.gsub!(/color:\s*rgb\(from [^)]+\)/, 'color: inherit')
+      
+      # Remove CSS feature detection queries that cause SassC errors
+      content.gsub!(/\(color:\s*rgb\([^)]*\)\)/, '(color: #000)')
+      content.gsub!(/\(-moz-orient:\s*inline\)\s*and\s*\(not\s*\([^)]*rgb\([^)]*\)[^)]*\)\)/, '(-moz-orient: inline)')
+      
       File.write(tailwind_file, content)
       puts "✅ Fixed Tailwind CSS syntax for SassC compatibility"
     else
