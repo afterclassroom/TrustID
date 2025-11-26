@@ -238,20 +238,10 @@
       }
       
       if (!App.cable) {
-        // Determine Axiam WebSocket URL based on environment
-        let axiamWebSocketUrl;
-        const hostname = window.location.hostname;
+        // Use Axiam WebSocket URL from server config
+        const axiamWebSocketUrl = '<%= ENV['AXIAM_CABLE_URL'] || 'wss://axiam.io/cable' %>';
         
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-          axiamWebSocketUrl = 'ws://localhost:3000/cable';  // Development
-        } else if (hostname === 'webclientstaging.axiam.io') {
-          axiamWebSocketUrl = 'wss://staging.axiam.io/cable';  // Staging
-        } else if (hostname === 'webclient.axiam.io' || hostname === 'teranet.axiam.io') {
-          axiamWebSocketUrl = 'wss://axiam.io/cable';  // Production
-        } else {
-          axiamWebSocketUrl = 'wss://staging.axiam.io/cable';  // Default to staging
-        }
-        
+        console.log('[WebSocket] Connecting to:', axiamWebSocketUrl);
         App.cable = ActionCable.createConsumer(axiamWebSocketUrl);
       }
       
@@ -263,13 +253,17 @@
         },
         {
           connected() {
+            console.log('[WebSocket] Connected to FacialSignOnDeviceChannel for client:', clientId);
             updateWebSocketStatus(true);
           },
           
           disconnected() {
+            console.log('[WebSocket] Disconnected from FacialSignOnDeviceChannel');
+            updateWebSocketStatus(false);
           },
           
           received(data) {
+            console.log('[WebSocket] Event received:', data);
             handleSignupEvent(data);
           },
           
@@ -281,13 +275,22 @@
       
       // Handle signup events
       function handleSignupEvent(data) {
+        console.log('[Event] Processing signup event:', {
+          flow_type: data.flow_type,
+          action: data.action,
+          registered: data.registered,
+          status: data.status
+        });
+        
         // Check if this is a signup flow (flow_type='signup' or action='signup' for backward compatibility)
         const isSignupFlow = data.flow_type === 'signup' || data.action === 'signup' || data.flow_type === '' || data.action === '' || (!data.flow_type && !data.action);
         
         if (isSignupFlow) {
+          console.log('[Event] Detected signup flow');
           
           // Event 1: Device registered
           if (data.registered === true) {
+            console.log('[Event] Device registered');
             updateStatus('processing', 'Device connected! Please capture your face on mobile.');
             
             Swal.fire({
@@ -301,11 +304,14 @@
           
           // Event 2: Facial uploaded
           if (data.status === 'uploaded') {
+            console.log('[Event] Facial uploaded, completing signup...');
             updateStatus('success', 'Facial received! Creating your account...');
             
             // Complete signup process
             completeSignup(data);
           }
+        } else {
+          console.log('[Event] Not a signup flow, ignoring');
         }
       }
       
