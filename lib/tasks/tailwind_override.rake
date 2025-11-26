@@ -18,6 +18,10 @@ namespace :tailwindcss do
       content.gsub!(/\(height >= ([^)]+)\)/, '(min-height: \1)')
       content.gsub!(/\(height <= ([^)]+)\)/, '(max-height: \1)')
       
+      # Fix CSS Nesting syntax: :where(& > ...) -> > ...
+      # Tailwind v4 uses & in :where() which browsers don't understand
+      content.gsub!(/:where\(&\s*>\s*([^)]+)\)/, '> \1')
+      
       # Fix CSS color functions - ONLY fix the specific syntax error
       # Replace only the problematic parts in @supports queries
       content.gsub!(/\(not \(color:\s*rgb\(from [^)]+\)\)\)/, '(color: inherit)')
