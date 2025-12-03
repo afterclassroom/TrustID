@@ -30,8 +30,8 @@ module Api
       end
       
       begin
-        # Call Axiam API
-        response = AxiamApi.lookup_client(email: email)
+        # Call Axiam API with user headers
+        response = AxiamApi.lookup_client(email: email, request_headers: request.headers.to_h)
         
         # Return response from Axiam
         if response['success']
@@ -80,8 +80,8 @@ module Api
       end
       
       begin
-        # Call Axiam API
-        response = AxiamApi.push_notification(client_id: client_id)
+        # Call Axiam API with user headers
+        response = AxiamApi.push_notification(client_id: client_id, request_headers: request.headers.to_h)
         
         # Return response from Axiam
         if response['success']

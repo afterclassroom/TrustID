@@ -103,18 +103,10 @@ class FacialSignOnController < ApplicationController
       return
     end
     
-    # Prepare device and browser headers for Axiam
-    custom_headers = {
-      'X-Forwarded-For' => request.headers['X-Forwarded-For'] || request.ip,
-      'X-Real-IP' => request.ip,
-      'X-Browser-User-Agent' => request.user_agent
-    }
-    
     result = AxiamApi.api_post(
       '/api/v1/facial_sign_on/login/push_notification', 
-      { id: axiam_uid }, 
-      domain: CLIENT_URL,
-      headers: custom_headers
+      { id: axiam_uid },
+      request_headers: request.headers.to_h
     )
     
     # Check response from Axiam API

@@ -13,7 +13,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   def create
     super do |resource|
       if resource.persisted?
-        result = AxiamApi.api_post('/api/v1/facial_sign_on/client/create', { email: resource.email, full_name: resource.full_name }, domain: CLIENT_URL)
+        result = AxiamApi.api_post('/api/v1/facial_sign_on/client/create', { email: resource.email, full_name: resource.full_name }, request_headers: request.headers.to_h)
         if result && result['data'] && result['data']['client_id']
           resource.update(axiam_uid: result['data']['client_id'])
         end
@@ -99,7 +99,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # Bật tính năng đăng nhập khuôn mặt (hiển thị QRCode và upload avatar)
   def enable_facial_sign_on
     # Gọi API lấy QRCode bằng POST, truyền id là axiam_uid
-    @qrcode = AxiamApi.api_post('/api/v1/facial_sign_on/client/qrcode', { id: current_user.axiam_uid }, domain: CLIENT_URL)
+    @qrcode = AxiamApi.api_post('/api/v1/facial_sign_on/client/qrcode', { id: current_user.axiam_uid }, request_headers: request.headers.to_h)
     render 'devise/registrations/enable_facial_sign_on'
   end
 

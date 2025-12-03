@@ -14,9 +14,9 @@ class FacialSignup::FacialSignupController < ApplicationController
     end
     
     begin
-      # Call Axiam API to create client
+      # Call Axiam API to create client with user headers
       # Domain is automatically handled by AxiamApi via ENV['AXIAM_DOMAIN']
-      response = AxiamApi.create_client(email: email, full_name: full_name)
+      response = AxiamApi.create_client(email: email, full_name: full_name, request_headers: request.headers.to_h)
       
       if response && response['success']
         client_id = response['data']['client_id']
@@ -137,9 +137,9 @@ class FacialSignup::FacialSignupController < ApplicationController
     @full_name = session[:facial_signup_full_name]
     
     begin
-      # Generate QR code with action=signup
+      # Generate QR code with action=signup and user headers
       # Domain is automatically handled by AxiamApi via ENV['AXIAM_DOMAIN']
-      response = AxiamApi.generate_qrcode(client_id: @client_id, action: 'signup')
+      response = AxiamApi.generate_qrcode(client_id: @client_id, action: 'signup', request_headers: request.headers.to_h)
       
       if response && response['success']
         @qrcode = response

@@ -65,9 +65,9 @@ class AxiamApi
   end
 
   # Step 2: Lookup client by email
-  def self.lookup_client(email:)
+  def self.lookup_client(email:, request_headers: {})
     path = '/api/v1/facial_sign_on/login/lookup_client'
-    response = api_post(path, { email: email })
+    response = api_post(path, { email: email }, request_headers: request_headers)
     
     if response['success']
       Rails.logger.info "[AxiamApi] Client found: #{email}"
@@ -79,9 +79,9 @@ class AxiamApi
   end
 
   # Step 3: Push notification to mobile app
-  def self.push_notification(client_id:)
+  def self.push_notification(client_id:, request_headers: {})
     path = '/api/v1/facial_sign_on/login/push_notification'
-    response = api_post(path, { id: client_id })
+    response = api_post(path, { id: client_id }, request_headers: request_headers)
     
     if response['success']
       verification_token = response.dig('data', 'verification_token')
@@ -94,12 +94,29 @@ class AxiamApi
   end
 
 
-  # Gọi API với Bearer token
-  def self.api_post(path, body = {}, retry_auth: true)
+  # Gọi API với Bearer token và forward user headers
+  def self.api_post(path, body = {}, retry_auth: true, request_headers: {})
     uri = URI.join(API_BASE, path)
     req = Net::HTTP::Post.new(uri)
     req['Authorization'] = "Bearer #{authenticated_token}"
     req['Content-Type'] = 'application/json'
+    
+    # Forward user's IP address and User-Agent to Axiam
+    if request_headers.present?
+      # Get user's real IP address (handle X-Forwarded-For with multiple IPs)
+      user_ip = request_headers['HTTP_X_FORWARDED_FOR']&.split(',')&.first&.strip ||
+                request_headers['X-Forwarded-For']&.split(',')&.first&.strip ||
+                request_headers['HTTP_X_REAL_IP'] ||
+                request_headers['X-Real-IP'] ||
+                request_headers['REMOTE_ADDR']
+      
+      # Get user's browser User-Agent
+      user_agent = request_headers['HTTP_USER_AGENT'] || request_headers['User-Agent']
+      
+      req['X-Forwarded-For'] = user_ip if user_ip.present?
+      req['User-Agent'] = user_agent if user_agent.present?
+    end
+    
     req.body = body.to_json
     
     res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == "https") do |http|
@@ -112,7 +129,7 @@ class AxiamApi
     if retry_auth && [401, 403].include?(res.code.to_i)
       Rails.logger.warn "[AxiamApi] Token may be expired, refreshing..."
       authenticated_token(force_refresh: true)
-      return api_post(path, body, retry_auth: false) # Retry once
+      return api_post(path, body, retry_auth: false, request_headers: request_headers) # Retry once
     end
     
     parsed
@@ -167,18 +184,18 @@ class AxiamApi
   end
 
   # Create client for facial signup - Legacy method
-  def self.create_client(email:, full_name:)
+  def self.create_client(email:, full_name:, request_headers: {})
     api_post('/api/v1/facial_sign_on/client/create', {
       email: email,
       full_name: full_name
-    })
+    }, request_headers: request_headers)
   end
 
   # Generate QR code - Legacy method
-  def self.generate_qrcode(client_id:, action: 'login')
+  def self.generate_qrcode(client_id:, action: 'login', request_headers: {})
     api_post('/api/v1/facial_sign_on/client/qrcode', {
       id: client_id,
       flow_type: action
-    })
+    }, request_headers: request_headers)
   end
 end
