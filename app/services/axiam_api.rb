@@ -54,7 +54,6 @@ class AxiamApi
         # Re-cache with correct expiration from API
         Rails.cache.write(cache_key, token, expires_in: expires_in.seconds)
         
-        Rails.logger.info "[AxiamApi] Authenticated successfully. Token expires in #{expires_in}s"
         token
       else
         error_msg = json && json['message'] ? json['message'] : 'Unknown error'
@@ -68,29 +67,14 @@ class AxiamApi
   def self.lookup_client(email:, request_headers: {})
     path = '/api/v1/facial_sign_on/login/lookup_client'
     response = api_post(path, { email: email }, request_headers: request_headers)
-    
-    if response['success']
-      Rails.logger.info "[AxiamApi] Client found: #{email}"
-      response
-    else
-      Rails.logger.warn "[AxiamApi] Client lookup failed: #{response['message']}"
-      response
-    end
+    response
   end
 
   # Step 3: Push notification to mobile app
   def self.push_notification(client_id:, request_headers: {})
     path = '/api/v1/facial_sign_on/login/push_notification'
     response = api_post(path, { id: client_id }, request_headers: request_headers)
-    
-    if response['success']
-      verification_token = response.dig('data', 'verification_token')
-      Rails.logger.info "[AxiamApi] Push notification sent. Token: #{verification_token}"
-      response
-    else
-      Rails.logger.error "[AxiamApi] Push notification failed: #{response['message']}"
-      response
-    end
+    response
   end
 
 
