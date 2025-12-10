@@ -36,23 +36,21 @@ class FacialSignup::FacialSignupController < ApplicationController
         # Send verification email
         verification_url = facial_signup_verify_url(token: verification_token, host: request.host_with_port, protocol: request.protocol.chomp('://'))
         
-        # Send email in production/staging (skip in development)
-        if !Rails.env.development? && (ENV['SMTP_USERNAME'].present? || ENV['SENDGRID_SMTP_USERNAME'].present?)
-          begin
-            FacialSignupMailer.verification_email(
-              email: email,
-              full_name: full_name,
-              verification_url: verification_url
-            ).deliver_now
-          rescue Net::OpenTimeout, Net::ReadTimeout => e
-            Rails.logger.error "[FacialSignup] SMTP timeout: #{e.message}"
-            render json: { success: false, error: "Email service is temporarily unavailable. Please contact support." }, status: :service_unavailable
-            return
-          rescue => e
-            Rails.logger.error "[FacialSignup] Email sending failed: #{e.message}"
-            render json: { success: false, error: "Failed to send verification email. Please try again." }, status: :internal_server_error
-            return
-          end
+        # Send email (letter_opener in development, SMTP in production/staging)
+        begin
+          FacialSignupMailer.verification_email(
+            email: email,
+            full_name: full_name,
+            verification_url: verification_url
+          ).deliver_now
+        rescue Net::OpenTimeout, Net::ReadTimeout => e
+          Rails.logger.error "[FacialSignup] SMTP timeout: #{e.message}"
+          render json: { success: false, error: "Email service is temporarily unavailable. Please contact support." }, status: :service_unavailable
+          return
+        rescue => e
+          Rails.logger.error "[FacialSignup] Email sending failed: #{e.message}"
+          render json: { success: false, error: "Failed to send verification email. Please try again." }, status: :internal_server_error
+          return
         end
         
         # Return success response

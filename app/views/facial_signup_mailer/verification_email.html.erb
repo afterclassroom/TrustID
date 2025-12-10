@@ -129,8 +129,8 @@
       </div>
       
       <div class="message">
-        <p>Thank you for signing up! We're excited to have you onboard.</p>
-        <p>To complete your registration and set up facial sign-in, please verify your email address by clicking the button below:</p>
+        <p>Thank you for registering with <b>Sign in with Face</b>. We’re pleased to welcome you aboard.</p>
+        <p>To complete your account setup and enable Sign in with Face, please verify your email address by clicking the button below:</p>
       </div>
       
       <div class="button-container">
@@ -138,29 +138,29 @@
       </div>
       
       <div class="info-box">
-        <p><strong>⏱️ This link will expire in 1 hour</strong> for your security.</p>
+        <p>For your security, this verification link will expire in 1 hour.</p>
       </div>
       
       <div class="alternative-link">
-        <p>If the button doesn't work, copy and paste this link into your browser:</p>
+        <p>If you are unable to use the button above, you may copy and paste the following link into your browser:</p>
         <%= link_to @verification_url, @verification_url %>
       </div>
       
       <div class="message" style="margin-top: 40px;">
-        <p><strong>What happens next?</strong></p>
+        <p><strong>What to Expect Next</strong></p>
         <ol style="padding-left: 20px; margin: 10px 0;">
-          <li>Click the verification button above</li>
-          <li>Scan the QR code with your Axiam app</li>
-          <li>Complete facial scan on your mobile device</li>
-          <li>Start signing in with your face!</li>
+          <li>Click the verification link.</li>
+          <li>Scan the QR code using your Axiam's Sign in with Face Authenticator app (Download here <a href="https://play.google.com/store/apps/details?id=com.docerfy.axiam_v2" style="color: #0f766e; text-decoration: none;">Android</a>, <a href="https://apps.apple.com/us/app/axiam/id6499258374" style="color: #0f766e; text-decoration: none;">iOS</a> app).</li>
+          <li>Complete the facial scan on your mobile device.</li>
+          <li>Begin signing in quickly and securely with facial recognition.</li>
         </ol>
       </div>
     </div>
     
     <div class="footer">
-      <p>If you didn't request this email, please ignore it.</p>
-      <p>Need help? <%= link_to 'Contact Support', '#' %></p>
-      <p style="margin-top: 20px;">© <%= Time.current.year %> Sign in with Face. All rights reserved.</p>
+      <p>If you have any questions or need assistance, feel free to contact us at <%= mail_to 'support@axiam.io', 'support@axiam.io', style: 'color: #0f766e; text-decoration: none;' %>.</p>
+      <p style="margin-top: 20px;">Thank you for joining us!</p>
+      <p>— The Sign in with Face Team</p>
     </div>
   </div>
 </body>
