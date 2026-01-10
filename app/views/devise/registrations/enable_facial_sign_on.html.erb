@@ -57,17 +57,62 @@
           
           try {
             // Step 1: Initialize App.cable to connect to Axiam WebSocket server
+            // ✨ NEW: JWT Token Management
+            let cachedJWTToken = null;
+            let tokenExpiresAt = null;
+            
+            async function getAxiamJWT() {
+              const now = Date.now();
+              
+              if (cachedJWTToken && tokenExpiresAt && now < tokenExpiresAt - 5 * 60 * 1000) {
+                return cachedJWTToken;
+              }
+              
+              try {
+                const response = await fetch('/auth/axiam-token', {
+                  method: 'GET',
+                  headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (!response.ok) {
+
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.token) {
+                  cachedJWTToken = data.token;
+                  tokenExpiresAt = now + (data.expires_in * 1000);
+                  return cachedJWTToken;
+                }
+                
+                return null;
+              } catch (error) {
+
+                return null;
+              }
+            }
+            
             if (typeof window.App === 'undefined') {
               window.App = {};
             }
             
             if (!App.cable) {
+              // ✨ NEW: Get JWT token for authentication
+              const jwtToken = await getAxiamJWT();
+              
+              if (!jwtToken) {
+                console.error('Failed to get JWT token for ActionCable');
+                updateConnectionStatus(false);
+                return;
+              }
+              
               // Determine Axiam WebSocket URL based on environment
               let axiamWebSocketUrl;
               const hostname = window.location.hostname;
               
               if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                axiamWebSocketUrl = 'ws://localhost:3000/cable';  // Development
+                axiomWebSocketUrl = 'ws://localhost:3000/cable';  // Development
               } else if (hostname === 'webclientstaging.axiam.io') {
                 axiamWebSocketUrl = 'wss://staging.axiam.io/cable';  // Staging
               } else if (hostname === 'webclient.axiam.io' || hostname === 'teranet.axiam.io') {
@@ -76,8 +121,9 @@
                 axiamWebSocketUrl = 'wss://staging.axiam.io/cable';  // Default to staging
               }
               
-              // Create ActionCable consumer to Axiam server
-              App.cable = ActionCable.createConsumer(axiamWebSocketUrl);
+              // Create ActionCable consumer with JWT authentication
+              const authenticatedUrl = `${axiamWebSocketUrl}?token=${encodeURIComponent(jwtToken)}`;
+              App.cable = ActionCable.createConsumer(authenticatedUrl);
             }
             
             // Step 2: Subscribe to FacialSignOnDeviceChannel BEFORE displaying QR

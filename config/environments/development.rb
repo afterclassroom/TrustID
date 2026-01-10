@@ -23,15 +23,8 @@ Rails.application.configure do
     config.action_controller.perform_caching = true
     config.action_controller.enable_fragment_cache_logging = true
 
-    # Use Redis for caching in development if available (for Axiam token caching)
-    if ENV["REDIS_URL"].present?
-      config.cache_store = :redis_cache_store, {
-        url: ENV["REDIS_URL"],
-        namespace: "veritrustai_dev_cache"
-      }
-    else
-      config.cache_store = :memory_store
-    end
+    # Use memory store for development (simpler, no Redis dependency)
+    config.cache_store = :memory_store
     
     config.public_file_server.headers = {
       "Cache-Control" => "public, max-age=#{2.days.to_i}"

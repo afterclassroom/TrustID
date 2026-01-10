@@ -56,7 +56,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
     
   } catch (error) {
-    console.error('Initialization error:', error);
     showStatus('Error: ' + error.message, 'danger', true);
   }
 });
@@ -132,7 +131,6 @@ async function handleLoginMessage(data) {
       }
       
     } catch (error) {
-      console.error('Login verification error:', error);
       showStatus('Error during login: ' + error.message, 'danger', true);
     }
     

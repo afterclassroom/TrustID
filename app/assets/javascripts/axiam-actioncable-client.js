@@ -162,14 +162,13 @@ const token = await fetchVerificationTokenSecurely();  // CSRF-protected endpoin
 // 5. Subscribe to facial sign-on
 axiamClient.subscribeFacialSignOn(token, {
   onMessage: (data) => {
-    console.log('Facial sign-on update:', data);
     if (data.status === 'success') {
       // Handle successful authentication
       window.location.href = '/dashboard';
     }
   },
   onConnected: () => {
-    console.log('Ready to receive facial sign-on updates');
+    // Ready to receive updates
   }
 });
 */

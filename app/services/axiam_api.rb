@@ -20,6 +20,51 @@ class AxiamApi
   # Production: veritrustai.net
   DOMAIN = ENV.fetch('AXIAM_DOMAIN', 'localhost')
 
+  # ✨ NEW: Get JWT token for ActionCable WebSocket authentication
+  # Returns: { success: true, token: "jwt_string", expires_in: 7200, expires_at: Time }
+  def self.get_jwt_token
+    uri = URI(AUTH_URL)
+    headers = { 
+      "Content-Type" => "application/json",
+      "X-API-Key" => API_KEY,
+      "X-API-Secret" => SECRET_KEY
+    }
+    
+    # Note: Domain is optional per updated Axiam documentation
+    request_body = { 
+      api_key: API_KEY, 
+      secret_key: SECRET_KEY
+    }
+    
+    res = Net::HTTP.post(uri, request_body.to_json, headers)
+    
+    if res.code.to_i >= 400
+      Rails.logger.error "[AxiamApi] JWT auth failed. Response: #{res.body}"
+      return { success: false, error: "HTTP #{res.code}" }
+    end
+    
+    json = JSON.parse(res.body) rescue nil
+    
+    if json && json['success'] && json['data'] && json['data']['authenticated_token']
+      token = json['data']['authenticated_token']
+      expires_in = json['data']['expires_in'] || 7200 # Default 2 hours
+      
+      {
+        success: true,
+        token: token,
+        expires_in: expires_in,
+        expires_at: Time.current + expires_in.seconds
+      }
+    else
+      error_msg = json && json['message'] ? json['message'] : 'Unknown error'
+      Rails.logger.error "[AxiamApi] Failed to get JWT token: #{error_msg}"
+      { success: false, error: error_msg }
+    end
+  rescue => e
+    Rails.logger.error "[AxiamApi] Exception getting JWT token: #{e.message}"
+    { success: false, error: e.message }
+  end
+
   # Cache authenticated_token với expires_in từ API response (default 720 hours = 30 days)
   def self.authenticated_token(force_refresh: false)
     cache_key = "axiam_authenticated_token_#{DOMAIN}"
@@ -75,6 +120,71 @@ class AxiamApi
     path = '/api/v1/facial_sign_on/login/push_notification'
     response = api_post(path, { id: client_id }, request_headers: request_headers)
     response
+  end
+
+  # Step 4: Validate session token (Security enhancement)
+  # Verifies client_session_token with Axiam API
+  # Returns client data if valid, error if invalid/expired
+  def self.validate_session(client_session_token:, client_id:)
+    path = '/api/v1/facial_sign_on/login/validate_session'
+    
+    begin
+      # Get fresh JWT token for validation
+      jwt_data = get_jwt_token
+      
+      unless jwt_data[:success]
+        Rails.logger.error "[AxiamApi] Failed to get JWT for validate_session: #{jwt_data[:error]}"
+        return {
+          'success' => false,
+          'message' => 'Authentication service error',
+          'code' => 5000
+        }
+      end
+      
+      jwt_token = jwt_data[:token]
+      
+      # Call Axiam validate_session API
+      uri = URI.join(API_BASE, path)
+      req = Net::HTTP::Post.new(uri)
+      req['Authorization'] = "Bearer #{jwt_token}"
+      req['Content-Type'] = 'application/json'
+      req.body = {
+        client_session_token: client_session_token,
+        client_id: client_id
+      }.to_json
+      
+      res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+        http.request(req)
+      end
+      
+      json = JSON.parse(res.body) rescue nil
+      
+      if res.code.to_i == 200 && json && json['success']
+        json
+      elsif res.code.to_i == 403
+        Rails.logger.warn "[AxiamApi] Cross-site validation failed"
+        json || {
+          'success' => false,
+          'message' => 'Security validation failed',
+          'code' => 1046
+        }
+      else
+        Rails.logger.warn "[AxiamApi] Session validation failed: HTTP #{res.code}"
+        json || {
+          'success' => false,
+          'message' => 'Validation failed',
+          'code' => 1040
+        }
+      end
+      
+    rescue StandardError => e
+      Rails.logger.error "[AxiamApi] Exception in validate_session: #{e.message}"
+      {
+        'success' => false,
+        'message' => 'Server error during validation',
+        'code' => 5000
+      }
+    end
   end
 
 

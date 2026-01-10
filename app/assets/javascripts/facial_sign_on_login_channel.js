@@ -250,7 +250,7 @@ window.cleanupAxiamClient = function() {
       window.App.facialSignOnSubscription = null;
       window.AXIAM_CLIENT_INITIALIZED = false;
     } catch (error) {
-      console.warn('Warning khi cleanup:', error);
+      // Cleanup error ignored
     }
   }
 };

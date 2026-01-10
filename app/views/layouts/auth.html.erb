@@ -23,7 +23,6 @@
         window.SITE_CREDENTIALS = <%= axiam_credentials_js.to_json.html_safe %>;
         // Only public info: channel_prefix and server_url
       <% else %>
-        console.error('❌ Axiam credentials not configured properly');
         window.SITE_CREDENTIALS = null;
       <% end %>
     </script>

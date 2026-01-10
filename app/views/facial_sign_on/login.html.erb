@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Không cần await ở đây, để chạy background
         if (typeof window.initAxiamClientIfNeeded === 'function') {
           window.initAxiamClientIfNeeded().catch(error => {
-            console.error('Pre-init failed:', error);
+            // Pre-init failed, continue anyway
           });
         }
       }

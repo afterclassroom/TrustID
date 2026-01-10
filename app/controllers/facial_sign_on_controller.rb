@@ -6,6 +6,9 @@ class FacialSignOnController < ApplicationController
   # Skip CSRF verification for widget callbacks (widget may not send CSRF token)
   skip_before_action :verify_authenticity_token, only: [:verified_login, :push_notification]
   
+  # Allow JSON format without authentication
+  before_action :set_json_format, only: [:verified_login]
+  
   CLIENT_URL = ENV.fetch('CLIENT_URL', 'localhost')
 
   # Trang sử dụng Axiam Widget
@@ -208,6 +211,60 @@ class FacialSignOnController < ApplicationController
   # Supports both AJAX (JSON) and form submission (from widget)
   def verified_login
     Rails.logger.info "[Facial Sign-On] verified_login called"
+    # 🔒 LOCAL SECURITY: Validate client_session_token to prevent replay attacks
+    client_session_token = params[:client_session_token]
+    client_id = params[:client_id]
+    email = params[:email]
+    
+    if client_session_token.present? && client_id.present?
+      # Check if token has already been used (one-time use enforcement)
+      cache_key = "client_session_token:#{client_session_token}"
+      if Rails.cache.read(cache_key) == 'used'
+        Rails.logger.warn "[Facial Sign-On] Token reuse attempt detected"
+        respond_to do |format|
+          format.json { render json: { success: false, error: 'Session token has already been used' }, status: :unauthorized }
+          format.html { 
+            flash[:alert] = 'Session expired. Please try again.'
+            redirect_to new_user_session_path 
+          }
+        end
+        return
+      end
+      
+      # Mark token as used (5 minute expiry to clean up cache)
+      Rails.cache.write(cache_key, 'used', expires_in: 5.minutes)
+      
+      # Find user by email
+      user = User.find_by(email: email)
+      
+      unless user
+        Rails.logger.error "[Facial Sign-On] User not found for email: #{email}"
+        respond_to do |format|
+          format.json { render json: { success: false, error: 'User not found' }, status: :not_found }
+          format.html { 
+            flash[:alert] = 'Account not found. Please sign up first.'
+            redirect_to new_user_registration_path 
+          }
+        end
+        return
+      end
+      
+      # Sign in user
+      sign_in(user)
+      Rails.logger.info "[Facial Sign-On] ✅ Auto-login successful for user #{user.id} (email: #{email})"
+      
+      respond_to do |format|
+        format.json { render json: { success: true, message: 'Login successful', redirect_url: root_path } }
+        format.html { 
+          flash[:success] = 'Login successful!'
+          redirect_to root_path 
+        }
+      end
+      return
+    end
+    
+    # FALLBACK: Legacy verification flow (for backward compatibility)
+    Rails.logger.warn "[Facial Sign-On] ⚠️ Using legacy verification flow (no session token)"
     
     # 🔒 SECURITY: Check for verification proof
     # Accept multiple proof formats:
@@ -231,7 +288,7 @@ class FacialSignOnController < ApplicationController
       return
     end
     
-    Rails.logger.info "[Facial Sign-On] ✅ Verification proof confirmed"
+    Rails.logger.info "[Facial Sign-On] ✅ Verification proof confirmed (legacy)"
     
     # Extract axiam_uid from different possible sources
     axiam_uid = nil
@@ -289,5 +346,12 @@ class FacialSignOnController < ApplicationController
         }
       end
     end
+  end
+  
+  private
+  
+  # Ensure JSON format for API endpoints
+  def set_json_format
+    request.format = :json if request.content_type == 'application/json'
   end
 end

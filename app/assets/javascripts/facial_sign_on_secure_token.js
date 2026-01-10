@@ -31,7 +31,6 @@ async function fetchVerificationTokenSecurely() {
     const data = await response.json();
 
     if (!response.ok) {
-      console.warn('[FacialSignOn] Token fetch failed:', data.error || response.statusText);
       return {
         success: false,
         error: data.user_message || data.error || 'Failed to fetch verification token'
@@ -39,14 +38,11 @@ async function fetchVerificationTokenSecurely() {
     }
 
     if (!data.verification_token) {
-      console.error('[FacialSignOn] No token in response:', data);
       return {
         success: false,
         error: 'No verification token in response'
       };
     }
-
-    console.info('[FacialSignOn] Token fetched securely, expires in:', data.expires_in, 'seconds');
 
     return {
       success: true,
@@ -92,20 +88,18 @@ async function initSecureFacialSignOn(axiamClient, onMessage, onError = null) {
     }
 
     // 2. Subscribe to ActionCable channel with fetched token
-    console.info('[FacialSignOn] Subscribing with secure token...');
     
     axiamClient.subscribeFacialSignOn(tokenResult.token, {
       onMessage: (data) => {
-        console.info('[FacialSignOn] Message received:', data.type || data.status);
         if (onMessage) {
           onMessage(data);
         }
       },
       onConnected: () => {
-        console.info('[FacialSignOn] Connected to ActionCable, waiting for authentication...');
+        // Connected to ActionCable
       },
       onDisconnected: () => {
-        console.warn('[FacialSignOn] Disconnected from ActionCable');
+        // Disconnected from ActionCable
       }
     });
 

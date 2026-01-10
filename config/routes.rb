@@ -2,6 +2,9 @@ Rails.application.routes.draw do
   # Email preview in development
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
   
+  # ✨ NEW: JWT Token endpoint for ActionCable authentication
+  get 'auth/axiam-token', to: 'auth#axiam_token'
+  
   devise_for :users, controllers: {
     registrations: 'users/registrations',
     sessions: 'devise/sessions'

@@ -223,7 +223,7 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
       const clientId = '<%= @client_id %>';
       const siteId = '<%= @site_id %>';
       
@@ -232,15 +232,60 @@
         return;
       }
       
+      // ✨ NEW: JWT Token Management
+      let cachedJWTToken = null;
+      let tokenExpiresAt = null;
+      
+      async function getAxiamJWT() {
+        const now = Date.now();
+        
+        // Return cached token if still valid
+        if (cachedJWTToken && tokenExpiresAt && now < tokenExpiresAt - 5 * 60 * 1000) {
+          return cachedJWTToken;
+        }
+        
+        try {
+          const response = await fetch('/auth/axiam-token', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          if (!response.ok) {
+
+          }
+          
+          const data = await response.json();
+          
+          if (data.success && data.token) {
+            cachedJWTToken = data.token;
+            tokenExpiresAt = now + (data.expires_in * 1000);
+            return cachedJWTToken;
+          }
+          
+          return null;
+        } catch (error) {
+          return null;
+        }
+      }
+      
       // Initialize ActionCable connection
       if (typeof window.App === 'undefined') {
         window.App = {};
       }
       
       if (!App.cable) {
-        // Use Axiam WebSocket URL from server config
+        // ✨ NEW: Get JWT token and create authenticated connection
+        const jwtToken = await getAxiamJWT();
+        
+        if (!jwtToken) {
+          updateStatus('error', 'Failed to authenticate. Please refresh the page.');
+          return;
+        }
+        
+        // Use Axiam WebSocket URL with JWT authentication
         const axiamWebSocketUrl = '<%= ENV['AXIAM_CABLE_URL'] || 'wss://axiam.io/cable' %>';
-        App.cable = ActionCable.createConsumer(axiamWebSocketUrl);
+        const authenticatedUrl = `${axiamWebSocketUrl}?token=${encodeURIComponent(jwtToken)}`;
+        App.cable = ActionCable.createConsumer(authenticatedUrl);
       }
       
       // Subscribe to FacialSignOnDeviceChannel for signup events

@@ -27,6 +27,9 @@ gem "jbuilder"
 # Use Redis adapter to run Action Cable in production
 gem "redis", ">= 4.0.1"
 
+# JWT authentication for ActionCable
+gem "jwt"
+
 # Environment variables configuration
 gem "figaro"
 
